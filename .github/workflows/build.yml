@@ -1,4 +1,4 @@
-name: Build CZERTAINLY Interfaces
+name: Build CZERTAINLY Dependencies
 on:
   pull_request:
     branches: [develop]
