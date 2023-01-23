@@ -38,9 +38,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com:3KeyCompany/CZERTAINLY-Interfaces.git</connection>
-        <developerConnection>scm:git:ssh://github.com:3KeyCompany/CZERTAINLY-Interfaces.git</developerConnection>
-        <url>https://github.com/3KeyCompany/CZERTAINLY-Interfaces</url>
+        <connection>scm:git:git://github.com:3KeyCompany/CZERTAINLY-Dependencies.git</connection>
+        <developerConnection>scm:git:ssh://github.com:3KeyCompany/CZERTAINLY-Dependencies.git</developerConnection>
+        <url>https://github.com/3KeyCompany/CZERTAINLY-Dependencies</url>
     </scm>
 
     <properties>
