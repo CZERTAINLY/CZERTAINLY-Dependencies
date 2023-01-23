@@ -48,7 +48,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.jacoco.plugin.version>0.8.7</maven.jacoco.plugin.version>
-        <sonar.projectKey>3KeyCompany_CZERTAINLY-Interfaces</sonar.projectKey>
+        <sonar.projectKey>3KeyCompany_CZERTAINLY-Dependencies</sonar.projectKey>
         <spring.data.common>3.0.0</spring.data.common>
         <fasterxml.jackson>2.14.1</fasterxml.jackson>
         <czertainly.interfaces>1.5.1-SNAPSHOT</czertainly.interfaces>
