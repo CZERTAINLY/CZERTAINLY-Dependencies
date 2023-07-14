@@ -57,7 +57,7 @@
         <commons.net.version>3.9.0</commons.net.version>
         <commons.configuration>1.9</commons.configuration>
         <swagger.annotation.version>2.2.8</swagger.annotation.version>
-        <bouncycastle.version>1.72</bouncycastle.version>
+        <bouncycastle.version>1.75</bouncycastle.version>
     </properties>
 
     <dependencyManagement>
