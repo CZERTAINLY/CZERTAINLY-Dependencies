@@ -6,7 +6,7 @@
 
 The settings are based on Spring Boot and their compliant dependencies that are regularly updated.
 
-For more information, see [czertainly-parent-pom.xml](./czertainly-parent-pom.xml).
+For more information, see [pom.xml](./pom.xml).
 
 ## Maven
 

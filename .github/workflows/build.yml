@@ -29,7 +29,7 @@ jobs:
       - name: Verify
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        run: mvn -B verify -f czertainly-parent-pom.xml
+        run: mvn -B verify -f pom.xml
   build:
     if: github.event_name != 'pull_request'
     name: Build
@@ -58,4 +58,4 @@ jobs:
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        run: mvn -B -X verify -f czertainly-parent-pom.xml
+        run: mvn -B -X verify -f pom.xml
