@@ -49,7 +49,7 @@
         <maven.jacoco.plugin.version>0.8.7</maven.jacoco.plugin.version>
         <sonar.projectKey>3KeyCompany_CZERTAINLY-Dependencies</sonar.projectKey>
         <spring.data.common>3.0.0</spring.data.common>
-        <fasterxml.jackson>2.14.1</fasterxml.jackson>
+        <fasterxml.jackson>2.15.2</fasterxml.jackson>
         <wiremock.version>2.27.2</wiremock.version>
         <log4j.version>1.7.30</log4j.version>
         <kxml2.version>2.3.0</kxml2.version>
