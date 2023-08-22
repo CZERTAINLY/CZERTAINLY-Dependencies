@@ -53,7 +53,7 @@
         <wiremock.version>2.27.2</wiremock.version>
         <log4j.version>1.7.30</log4j.version>
         <kxml2.version>2.3.0</kxml2.version>
-        <jaxws-rt.version>2.3.3</jaxws-rt.version>
+        <jaxws-rt.version>4.0.1</jaxws-rt.version>
         <commons.net.version>3.9.0</commons.net.version>
         <commons.configuration>1.9</commons.configuration>
         <swagger.annotation.version>2.2.8</swagger.annotation.version>
