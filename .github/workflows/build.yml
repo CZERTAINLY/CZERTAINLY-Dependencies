@@ -29,7 +29,7 @@ jobs:
       - name: Verify
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        run: mvn -B verify -f czertainly-parent-pom.xml
+        run: mvn -B verify -f pom.xml
   build:
     if: github.event_name != 'pull_request'
     name: Build
@@ -44,13 +44,13 @@ jobs:
           java-version: 17
           distribution: 'temurin'
       - name: Cache SonarQube packages
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Cache Maven packages
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -58,4 +58,4 @@ jobs:
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        run: mvn -B -X verify -f czertainly-parent-pom.xml
+        run: mvn -B -X verify -f pom.xml

@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.1</version>
+        <version>3.0.9</version>
     </parent>
 
     <groupId>com.czertainly</groupId>
     <artifactId>dependencies</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
     <name>CZERTAINLY-Dependencies</name>
     <packaging>pom</packaging>
@@ -46,18 +46,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <maven.jacoco.plugin.version>0.8.7</maven.jacoco.plugin.version>
+        <maven.jacoco.plugin.version>0.8.10</maven.jacoco.plugin.version>
         <sonar.projectKey>3KeyCompany_CZERTAINLY-Dependencies</sonar.projectKey>
-        <spring.data.common>3.0.0</spring.data.common>
-        <fasterxml.jackson>2.14.1</fasterxml.jackson>
-        <wiremock.version>2.27.2</wiremock.version>
+        <spring.data.common>3.0.9</spring.data.common>
+        <fasterxml.jackson>2.14.3</fasterxml.jackson>
+        <wiremock.version>3.0.1</wiremock.version>
         <log4j.version>1.7.30</log4j.version>
         <kxml2.version>2.3.0</kxml2.version>
-        <jaxws-rt.version>2.3.3</jaxws-rt.version>
+        <jaxws-rt.version>4.0.1</jaxws-rt.version>
         <commons.net.version>3.9.0</commons.net.version>
-        <commons.configuration>1.9</commons.configuration>
-        <swagger.annotation.version>2.2.8</swagger.annotation.version>
-        <bouncycastle.version>1.72</bouncycastle.version>
+        <commons.configuration>1.10</commons.configuration>
+        <swagger.annotation.version>2.2.15</swagger.annotation.version>
+        <bouncycastle.version>1.76</bouncycastle.version>
     </properties>
 
     <dependencyManagement>
@@ -233,7 +233,7 @@
                 <plugin>
                     <groupId>org.hibernate.orm.tooling</groupId>
                     <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                    <version>6.1.6.Final</version>
+                    <version>6.1.7.Final</version>
                     <executions>
                         <execution>
                             <phase>compile</phase>
@@ -276,7 +276,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
