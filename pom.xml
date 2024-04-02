@@ -46,7 +46,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <maven.jacoco.plugin.version>0.8.10</maven.jacoco.plugin.version>
+        <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
         <sonar.projectKey>3KeyCompany_CZERTAINLY-Dependencies</sonar.projectKey>
         <spring.data.common>3.0.9</spring.data.common>
         <fasterxml.jackson>2.14.3</fasterxml.jackson>
