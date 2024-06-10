@@ -54,7 +54,7 @@
         <log4j.version>1.7.30</log4j.version>
         <kxml2.version>2.3.0</kxml2.version>
         <jaxws-rt.version>4.0.1</jaxws-rt.version>
-        <commons.net.version>3.9.0</commons.net.version>
+        <commons.net.version>3.11.1</commons.net.version>
         <commons.configuration>1.10</commons.configuration>
         <swagger.annotation.version>2.2.15</swagger.annotation.version>
         <bouncycastle.version>1.76</bouncycastle.version>
