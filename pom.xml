@@ -48,7 +48,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
         <sonar.projectKey>3KeyCompany_CZERTAINLY-Dependencies</sonar.projectKey>
-        <spring.data.common>3.3.1</spring.data.common>
+        <spring.data.common>3.3.3</spring.data.common>
         <fasterxml.jackson>2.17.1</fasterxml.jackson>
         <wiremock.version>3.8.0</wiremock.version>
         <log4j.version>2.0.13</log4j.version>
