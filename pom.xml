@@ -12,18 +12,18 @@
 
     <groupId>com.czertainly</groupId>
     <artifactId>dependencies</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.2.0</version>
 
     <name>CZERTAINLY-Dependencies</name>
     <packaging>pom</packaging>
 
     <description>CZERTAINLY - parent pom for managing libraries</description>
-    <url>https://github.com/3KeyCompany/CZERTAINLY-Dependencies</url>
+    <url>https://github.com/CZERTAINLY/CZERTAINLY-Dependencies</url>
 
     <licenses>
         <license>
             <name>MIT License</name>
-            <url>https://github.com/3KeyCompany/CZERTAINLY-Dependencies/blob/develop/LICENSE.md</url>
+            <url>https://github.com/CZERTAINLY/CZERTAINLY-Dependencies/blob/develop/LICENSE.md</url>
         </license>
     </licenses>
 
@@ -37,9 +37,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com:3KeyCompany/CZERTAINLY-Dependencies.git</connection>
-        <developerConnection>scm:git:ssh://github.com:3KeyCompany/CZERTAINLY-Dependencies.git</developerConnection>
-        <url>https://github.com/3KeyCompany/CZERTAINLY-Dependencies</url>
+        <connection>scm:git:git://github.com:CZERTAINLY/CZERTAINLY-Dependencies.git</connection>
+        <developerConnection>scm:git:ssh://github.com:CZERTAINLY/CZERTAINLY-Dependencies.git</developerConnection>
+        <url>https://github.com/CZERTAINLY/CZERTAINLY-Dependencies</url>
     </scm>
 
     <properties>
@@ -47,7 +47,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
-        <sonar.projectKey>3KeyCompany_CZERTAINLY-Dependencies</sonar.projectKey>
+        <sonar.projectKey>CZERTAINLY_CZERTAINLY-Dependencies</sonar.projectKey>
         <spring.data.common>3.3.3</spring.data.common>
         <fasterxml.jackson>2.17.2</fasterxml.jackson>
         <wiremock.version>3.9.1</wiremock.version>
@@ -304,7 +304,7 @@
                 <repository>
                     <id>github</id>
                     <name>GitHub Packages</name>
-                    <url>https://maven.pkg.github.com/3keycompany/czertainly-dependencies</url>
+                    <url>https://maven.pkg.github.com/czertainly/czertainly-dependencies</url>
                 </repository>
             </distributionManagement>
         </profile>
@@ -313,7 +313,7 @@
     <repositories>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/3keycompany/*</url>
+            <url>https://maven.pkg.github.com/czertainly/*</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
