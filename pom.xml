@@ -12,7 +12,7 @@
 
     <groupId>com.czertainly</groupId>
     <artifactId>dependencies</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1-SNAPSHOT</version>
 
     <name>CZERTAINLY-Dependencies</name>
     <packaging>pom</packaging>
@@ -57,7 +57,7 @@
         <commons.net.version>3.11.1</commons.net.version>
         <commons.configuration>1.10</commons.configuration>
         <swagger.annotation.version>2.2.23</swagger.annotation.version>
-        <bouncycastle.version>1.78.1</bouncycastle.version>
+        <bouncycastle.version>1.80</bouncycastle.version>
         <hibernate-enhance-maven-plugin.version>6.5.2.Final</hibernate-enhance-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.5</maven-gpg-plugin.version>
     </properties>
