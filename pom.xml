@@ -50,7 +50,7 @@
         <sonar.projectKey>CZERTAINLY_CZERTAINLY-Dependencies</sonar.projectKey>
         <spring.data.common>3.3.3</spring.data.common>
         <fasterxml.jackson>2.18.2</fasterxml.jackson>
-        <wiremock.version>3.9.1</wiremock.version>
+        <wiremock.version>3.10.0</wiremock.version>
         <log4j.version>2.0.13</log4j.version>
         <kxml2.version>2.3.0</kxml2.version>
         <jaxws-rt.version>4.0.3</jaxws-rt.version>
