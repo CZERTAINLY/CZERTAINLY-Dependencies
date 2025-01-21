@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.3</version>
+        <version>3.4.1</version>
     </parent>
 
     <groupId>com.czertainly</groupId>
@@ -48,7 +48,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
         <sonar.projectKey>CZERTAINLY_CZERTAINLY-Dependencies</sonar.projectKey>
-        <spring.data.common>3.3.3</spring.data.common>
+        <spring.data.common>3.4.2</spring.data.common>
         <fasterxml.jackson>2.18.2</fasterxml.jackson>
         <wiremock.version>3.10.0</wiremock.version>
         <log4j.version>2.0.13</log4j.version>
@@ -56,10 +56,10 @@
         <jaxws-rt.version>4.0.3</jaxws-rt.version>
         <commons.net.version>3.11.1</commons.net.version>
         <commons.configuration>1.10</commons.configuration>
-        <swagger.annotation.version>2.2.23</swagger.annotation.version>
+        <swagger.annotation.version>2.2.28</swagger.annotation.version>
         <bouncycastle.version>1.80</bouncycastle.version>
-        <hibernate-enhance-maven-plugin.version>6.5.2.Final</hibernate-enhance-maven-plugin.version>
-        <maven-gpg-plugin.version>3.2.5</maven-gpg-plugin.version>
+        <hibernate-enhance-maven-plugin.version>6.6.5.Final</hibernate-enhance-maven-plugin.version>
+        <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
     </properties>
 
     <dependencyManagement>
