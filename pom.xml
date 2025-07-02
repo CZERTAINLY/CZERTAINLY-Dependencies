@@ -59,7 +59,7 @@
         <swagger.annotation.version>2.2.28</swagger.annotation.version>
         <bouncycastle.version>1.80</bouncycastle.version>
         <hibernate-enhance-maven-plugin.version>6.6.9.Final</hibernate-enhance-maven-plugin.version>
-        <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     </properties>
 
     <dependencyManagement>
