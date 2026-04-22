@@ -1,4 +1,4 @@
-name: Build CZERTAINLY Dependencies
+name: Build dependencies
 on:
   pull_request:
     branches: [main]
