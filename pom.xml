@@ -37,8 +37,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/OmniTrustILM/dependencies.git</connection>
-        <developerConnection>scm:git:ssh://github.com/OmniTrustILM/dependencies.git</developerConnection>
+        <connection>scm:git:https://github.com/OmniTrustILM/dependencies.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/OmniTrustILM/dependencies.git</developerConnection>
         <url>https://github.com/OmniTrustILM/dependencies</url>
     </scm>
 
