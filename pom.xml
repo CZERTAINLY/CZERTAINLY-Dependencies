@@ -10,36 +10,36 @@
         <version>3.5.13</version>
     </parent>
 
-    <groupId>com.czertainly</groupId>
+    <groupId>com.otilm</groupId>
     <artifactId>dependencies</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1-SNAPSHOT</version>
 
-    <name>CZERTAINLY-Dependencies</name>
+    <name>dependencies</name>
     <packaging>pom</packaging>
 
-    <description>CZERTAINLY - parent pom for managing libraries</description>
-    <url>https://github.com/CZERTAINLY/CZERTAINLY-Dependencies</url>
+    <description>ILM - parent pom for managing libraries</description>
+    <url>https://github.com/OmniTrustILM/dependencies</url>
 
     <licenses>
         <license>
             <name>MIT License</name>
-            <url>https://github.com/CZERTAINLY/CZERTAINLY-Dependencies/blob/develop/LICENSE.md</url>
+            <url>https://github.com/OmniTrustILM/dependencies/blob/main/LICENSE.md</url>
         </license>
     </licenses>
 
     <developers>
         <developer>
-            <name>CZERTAINLY</name>
-            <email>getinfo@czertainly.com</email>
-            <organization>CZERTAINLY s.r.o.</organization>
-            <organizationUrl>https://www.czertainly.com</organizationUrl>
+            <name>ILM</name>
+            <email>ilm@omnitrust.com</email>
+            <organization>OmniTrust</organization>
+            <organizationUrl>https://omnitrust.com</organizationUrl>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com:CZERTAINLY/CZERTAINLY-Dependencies.git</connection>
-        <developerConnection>scm:git:ssh://github.com:CZERTAINLY/CZERTAINLY-Dependencies.git</developerConnection>
-        <url>https://github.com/CZERTAINLY/CZERTAINLY-Dependencies</url>
+        <connection>scm:git:git://github.com/OmniTrustILM/dependencies.git</connection>
+        <developerConnection>scm:git:ssh://github.com/OmniTrustILM/dependencies.git</developerConnection>
+        <url>https://github.com/OmniTrustILM/dependencies</url>
     </scm>
 
     <properties>
@@ -47,7 +47,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.jacoco.plugin.version>0.8.14</maven.jacoco.plugin.version>
-        <sonar.projectKey>CZERTAINLY_CZERTAINLY-Dependencies</sonar.projectKey>
+        <sonar.projectKey>OmniTrustILM-dependencies</sonar.projectKey>
         <spring.data.common>3.5.10</spring.data.common>
         <fasterxml.jackson>2.21.2</fasterxml.jackson>
         <wiremock.version>3.13.2</wiremock.version>
@@ -60,6 +60,7 @@
         <bouncycastle.version>1.83</bouncycastle.version>
         <hibernate-enhance-maven-plugin.version>6.6.46.Final</hibernate-enhance-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+        <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -261,20 +262,29 @@
 
     <profiles>
         <profile>
-            <id>ossrh</id>
+            <id>central</id>
             <distributionManagement>
-                <repository>
-                    <id>ossrh</id>
-                    <name>Central Repository OSSRH</name>
-                    <url>https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2</url>
-                </repository>
+                <!-- No <repository> for releases: the central-publishing-maven-plugin
+                     uploads the bundle to the Portal API, not via mvn deploy's URL. -->
                 <snapshotRepository>
-                    <id>ossrh</id>
+                    <id>central</id>
                     <url>https://central.sonatype.com/repository/maven-snapshots/</url>
                 </snapshotRepository>
             </distributionManagement>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <deploymentName>${project.artifactId}-${project.version}</deploymentName>
+                            <!-- autoPublish defaults to false: deployment waits in
+                                 VALIDATED state for you to click Publish in the Portal UI. -->
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -304,7 +314,7 @@
                 <repository>
                     <id>github</id>
                     <name>GitHub Packages</name>
-                    <url>https://maven.pkg.github.com/czertainly/czertainly-dependencies</url>
+                    <url>https://maven.pkg.github.com/omnitrustilm/dependencies</url>
                 </repository>
             </distributionManagement>
         </profile>
@@ -313,13 +323,13 @@
     <repositories>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/czertainly/*</url>
+            <url>https://maven.pkg.github.com/omnitrustilm/*</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
         </repository>
         <repository>
-            <id>ossrh</id>
+            <id>central-snapshots</id>
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>
         </repository>
     </repositories>
