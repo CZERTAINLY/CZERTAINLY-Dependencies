@@ -56,7 +56,7 @@
         <jaxws-rt.version>4.0.4</jaxws-rt.version>
         <commons.net.version>3.13.0</commons.net.version>
         <commons.configuration>2.13.0</commons.configuration>
-        <swagger.annotation.version>2.2.40</swagger.annotation.version>
+        <swagger.annotation.version>2.2.49</swagger.annotation.version>
         <bouncycastle.version>1.83</bouncycastle.version>
         <hibernate-enhance-maven-plugin.version>6.6.46.Final</hibernate-enhance-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
