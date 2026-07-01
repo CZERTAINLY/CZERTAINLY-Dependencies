@@ -55,7 +55,7 @@
         <kxml2.version>2.3.0</kxml2.version>
         <jaxws-rt.version>4.0.4</jaxws-rt.version>
         <commons.net.version>3.13.0</commons.net.version>
-        <commons.configuration>2.15.0</commons.configuration>
+        <commons.configuration>2.15.1</commons.configuration>
         <swagger.annotation.version>2.2.50</swagger.annotation.version>
         <bouncycastle.version>1.84</bouncycastle.version>
         <hibernate-enhance-maven-plugin.version>6.6.46.Final</hibernate-enhance-maven-plugin.version>
