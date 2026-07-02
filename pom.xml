@@ -48,11 +48,8 @@
         <maven.compiler.target>21</maven.compiler.target>
         <maven.jacoco.plugin.version>0.8.15</maven.jacoco.plugin.version>
         <sonar.projectKey>OmniTrustILM-dependencies</sonar.projectKey>
-        <spring.data.common>3.5.13</spring.data.common>
-        <fasterxml.jackson>2.22.0</fasterxml.jackson>
-        <!-- Realign the whole Jackson train (core + annotations, not just databind/jsr310)
-             ahead of the version managed by spring-boot-dependencies, to keep the modules
-             on one minor. -->
+        <!-- Overrides the whole Jackson train (spring-boot-dependencies imports jackson-bom
+             via this property); drop once Spring Boot manages Jackson >= 2.22.0. -->
         <jackson-bom.version>2.22.0</jackson-bom.version>
         <wiremock.version>3.13.2</wiremock.version>
         <log4j.version>2.25.2</log4j.version>
@@ -62,8 +59,7 @@
         <commons.configuration>2.15.1</commons.configuration>
         <swagger.annotation.version>2.2.52</swagger.annotation.version>
         <bouncycastle.version>1.84</bouncycastle.version>
-        <!-- Must match the hibernate-core version Spring Boot manages: the enhance plugin
-             stamps bytecode with its own version and Hibernate rejects a runtime mismatch. -->
+        <!-- Track Spring Boot's hibernate-core; a plugin/runtime mismatch breaks enhancement. -->
         <hibernate-enhance-maven-plugin.version>${hibernate.version}</hibernate-enhance-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
@@ -71,13 +67,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!--    SPRING libs additional    -->
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-commons</artifactId>
-                <version>${spring.data.common}</version>
-            </dependency>
-
             <!-- DB -->
             <dependency>
                 <groupId>org.postgresql</groupId>
@@ -97,16 +86,6 @@
                 <version>${jakarta-xml-ws.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${fasterxml.jackson}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${fasterxml.jackson}</version>
-            </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
