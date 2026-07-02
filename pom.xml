@@ -47,7 +47,9 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.jacoco.plugin.version>0.8.15</maven.jacoco.plugin.version>
-        <sonar.projectKey>OmniTrustILM-dependencies</sonar.projectKey>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.organization>ilm</sonar.organization>
+        <sonar.projectKey>ilm_dependencies</sonar.projectKey>
         <!-- Overrides the whole Jackson train (spring-boot-dependencies imports jackson-bom
              via this property); drop once Spring Boot manages Jackson >= 2.22.0. -->
         <jackson-bom.version>2.22.0</jackson-bom.version>
