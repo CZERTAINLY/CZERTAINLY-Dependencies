@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.14</version>
+        <version>3.5.16</version>
     </parent>
 
     <groupId>com.otilm</groupId>
@@ -46,21 +46,27 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <maven.jacoco.plugin.version>0.8.14</maven.jacoco.plugin.version>
+        <maven.jacoco.plugin.version>0.8.15</maven.jacoco.plugin.version>
         <sonar.projectKey>OmniTrustILM-dependencies</sonar.projectKey>
-        <spring.data.common>3.5.11</spring.data.common>
-        <fasterxml.jackson>2.21.3</fasterxml.jackson>
+        <spring.data.common>3.5.13</spring.data.common>
+        <fasterxml.jackson>2.22.0</fasterxml.jackson>
+        <!-- Realign the whole Jackson train (core + annotations, not just databind/jsr310)
+             ahead of the version managed by spring-boot-dependencies, to keep the modules
+             on one minor. -->
+        <jackson-bom.version>2.22.0</jackson-bom.version>
         <wiremock.version>3.13.2</wiremock.version>
         <log4j.version>2.25.2</log4j.version>
         <kxml2.version>2.3.0</kxml2.version>
-        <jaxws-rt.version>4.0.4</jaxws-rt.version>
+        <jaxws-rt.version>4.0.5</jaxws-rt.version>
         <commons.net.version>3.13.0</commons.net.version>
-        <commons.configuration>2.15.0</commons.configuration>
-        <swagger.annotation.version>2.2.50</swagger.annotation.version>
+        <commons.configuration>2.15.1</commons.configuration>
+        <swagger.annotation.version>2.2.52</swagger.annotation.version>
         <bouncycastle.version>1.84</bouncycastle.version>
-        <hibernate-enhance-maven-plugin.version>6.6.46.Final</hibernate-enhance-maven-plugin.version>
+        <!-- Must match the hibernate-core version Spring Boot manages: the enhance plugin
+             stamps bytecode with its own version and Hibernate rejects a runtime mismatch. -->
+        <hibernate-enhance-maven-plugin.version>${hibernate.version}</hibernate-enhance-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-        <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
+        <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
