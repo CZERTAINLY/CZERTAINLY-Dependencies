@@ -50,9 +50,14 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>ilm</sonar.organization>
         <sonar.projectKey>ilm_dependencies</sonar.projectKey>
-        <!-- Overrides the whole Jackson train (spring-boot-dependencies imports jackson-bom
-             via this property); drop once Spring Boot manages Jackson >= 2.22.0. -->
-        <jackson-bom.version>2.22.0</jackson-bom.version>
+        <!-- Jackson train pinned one minor ahead of Spring Boot's managed 2.21.x: consumers
+             are already validated on 2.22.x, so we stay rather than re-test a downgrade.
+             Must remain >= 2.22.1 (GHSA-r7wm-3cxj-wff9). Drop once Spring Boot manages
+             Jackson >= 2.22.1. The jackson-bom import below keeps Renovate tracking it. -->
+        <jackson-bom.version>2.22.1</jackson-bom.version>
+        <!-- Override Spring Boot's managed postgresql 42.7.11 (CVE-2026-54291); no Spring Boot
+             release incl. 4.x ships 42.7.12 yet. Drop once the parent manages >= 42.7.12. -->
+        <postgresql.version>42.7.12</postgresql.version>
         <wiremock.version>3.13.2</wiremock.version>
         <log4j.version>2.25.2</log4j.version>
         <kxml2.version>2.3.0</kxml2.version>
@@ -69,6 +74,16 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Explicit import so Renovate tracks jackson-bom.version; overrides
+                 Spring Boot's managed Jackson (nearest definition wins). -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- DB -->
             <dependency>
                 <groupId>org.postgresql</groupId>
