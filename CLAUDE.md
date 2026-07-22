@@ -49,3 +49,13 @@ There are no tests or source code to compile in this repository itself. The `ver
 ## Dependency Updates
 
 Automated via Renovate (`renovate.json`). PRs are created automatically when new dependency versions are available.
+
+### Version overrides ahead of the parent
+
+Most versions come from the Spring Boot parent's curated, pre-tested set — that is the value of inheriting the BOM. Occasionally a CVE hits a parent-managed library before any Spring Boot release adopts the fix; then this POM pins the fixed version ahead of the parent. Treat every such override as temporary debt with an expiry date:
+
+- **Override only when forced.** If a published Spring Boot release already carries the fix, bump `spring-boot-starter-parent` instead — one knob, and the whole set stays tested together. Override a single library only when *no* release fixes it yet.
+- **Forward-only.** An override must be `>=` the parent-managed version, never behind it.
+- **Make it Renovate-visible.** A bare `<x.version>` property that only overrides a parent-managed version by name is invisible to Renovate — it has no dependency to map to, so it never gets an update PR. Back each override with an explicit `<dependency>` (or BOM `import`) in `dependencyManagement` that references `${x.version}`.
+- **Document why and when it can go.** Comment each override with the driver (CVE) and the condition to remove it.
+- **Undrift on every parent bump.** When bumping Spring Boot, re-audit every override: if the new parent now manages a version `>=` the override, delete the override and fall back to the parent. The vulnerability scanner will *not* flag a redundant override — it is not a vuln — so this is a manual step, not scanner-driven.
