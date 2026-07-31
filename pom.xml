@@ -65,7 +65,10 @@
              The netty-bom import below keeps Renovate tracking it. -->
         <netty.version>4.1.136.Final</netty.version>
         <wiremock.version>3.13.2</wiremock.version>
-        <log4j.version>2.25.2</log4j.version>
+        <!-- Spring Boot's property is log4j2.version, not log4j.version; the latter matched
+             nothing and left consumers on Spring Boot's managed 2.24.3. The log4j-bom import
+             below applies the version and keeps Renovate tracking it. -->
+        <log4j2.version>2.26.1</log4j2.version>
         <kxml2.version>2.3.0</kxml2.version>
         <jaxws-rt.version>4.0.5</jaxws-rt.version>
         <commons.net.version>3.13.0</commons.net.version>
@@ -96,6 +99,16 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
                 <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Explicit import so Renovate tracks log4j2.version; overrides
+                 Spring Boot's managed log4j2 artifacts (nearest definition wins). -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-bom</artifactId>
+                <version>${log4j2.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
