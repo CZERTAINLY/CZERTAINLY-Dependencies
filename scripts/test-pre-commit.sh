@@ -65,7 +65,12 @@ assert_contains() {
 
 assert_not_contains() {
     local haystack_file=$1 needle=$2 label=$3
-    if grep -qF -- "$needle" "$haystack_file" 2>/dev/null; then
+    # A missing or empty haystack satisfies "does not contain" without testing
+    # anything, so a broken fixture would read as a pass. Every haystack here is
+    # a file that must exist and hold content by the time it is checked.
+    if [[ ! -s "$haystack_file" ]]; then
+        no "$label (no content at $haystack_file)"
+    elif grep -qF -- "$needle" "$haystack_file" 2>/dev/null; then
         no "$label (unexpectedly present: $needle)"
     else ok "$label"; fi
     return 0
@@ -150,7 +155,12 @@ new_repo() {
         git config user.name Test
         git config commit.gpgsign false
         git config core.hooksPath .git/hooks
-    )
+    ) || {
+        # Without this the suite runs every case against a directory that is not a
+        # repository, and reports a wall of assertion failures instead of the cause.
+        echo "cannot create the fixture repo for case '$CASE' -- is git working?" >&2
+        exit 1
+    }
     return 0
 }
 
