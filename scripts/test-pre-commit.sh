@@ -156,8 +156,6 @@ new_repo() {
         git config commit.gpgsign false
         git config core.hooksPath .git/hooks
     ) || {
-        # Without this the suite runs every case against a directory that is not a
-        # repository, and reports a wall of assertion failures instead of the cause.
         echo "cannot create the fixture repo for case '$CASE' -- is git working?" >&2
         exit 1
     }
