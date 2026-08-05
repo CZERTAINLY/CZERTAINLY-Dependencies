@@ -44,6 +44,7 @@ The only Java in this repository is the `formatter-selftest` fixture set; the ag
 ## Maven Profiles
 
 - **`central`**: Publishes to Maven Central Portal with GPG signing. Requires `MAVEN_GPG_PRIVATE_KEY`, `MAVEN_GPG_PASSPHRASE`, and Central Portal credentials. After deployment, releases sit in VALIDATED state until manually published in the Portal UI.
+  - **Any new `packaging=jar` module must attach both a `-sources.jar` and a `-javadoc.jar`.** Central rejects the deployment if either is missing, and it does so *after* the release tag is already pushed.
 - **`github`**: Publishes to GitHub Packages.
 
 ## Key Plugin Configuration (inherited by child projects)

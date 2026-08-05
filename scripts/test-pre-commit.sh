@@ -23,7 +23,7 @@ TEST_BASH=$(command -v "${TEST_BASH:-bash}") || {
     exit 1
 }
 
-[ -f "$HOOK" ] || {
+[[ -f "$HOOK" ]] || {
     echo "no hook at $HOOK" >&2
     exit 1
 }
@@ -37,32 +37,46 @@ FAILED_CASES=''
 
 # --- assertions ---------------------------------------------------------------
 
+readonly EXITS_0='exits 0'
+
 ok() {
+    local label=$1
     PASS=$((PASS + 1))
-    printf '    ok   %s\n' "$1"
+    printf '    ok   %s\n' "$label"
+    return 0
 }
 
 no() {
+    local label=$1
     FAIL=$((FAIL + 1))
     FAILED_CASES="$FAILED_CASES
-  - $CASE: $1"
-    printf '    FAIL %s\n' "$1"
+  - $CASE: $label"
+    printf '    FAIL %s\n' "$label"
+    return 0
 }
 
-assert_contains() { # haystack-file needle label
-    if grep -qF -- "$2" "$1" 2>/dev/null; then ok "$3"; else
-        no "$3 (missing: $2)"
+assert_contains() {
+    local haystack_file=$1 needle=$2 label=$3
+    if grep -qF -- "$needle" "$haystack_file" 2>/dev/null; then ok "$label"; else
+        no "$label (missing: $needle)"
     fi
+    return 0
 }
 
-assert_not_contains() { # haystack-file needle label
-    if grep -qF -- "$2" "$1" 2>/dev/null; then
-        no "$3 (unexpectedly present: $2)"
-    else ok "$3"; fi
+assert_not_contains() {
+    local haystack_file=$1 needle=$2 label=$3
+    if grep -qF -- "$needle" "$haystack_file" 2>/dev/null; then
+        no "$label (unexpectedly present: $needle)"
+    else ok "$label"; fi
+    return 0
 }
 
-assert_eq() { # actual expected label
-    if [ "$1" = "$2" ]; then ok "$3"; else no "$3 (got '$1', want '$2')"; fi
+assert_eq() {
+    local actual=$1 expected=$2 label=$3
+    if [[ "$actual" = "$expected" ]]; then ok "$label"; else
+        no "$label (got '$actual', want '$expected')"
+    fi
+    return 0
 }
 
 # --- fixtures ----------------------------------------------------------------
@@ -72,13 +86,14 @@ assert_eq() { # actual expected label
 # STUB_MODE: normal | noop (print no count line) | partial (undercount) | fail |
 # winpath (treat the pattern as a Windows path, the way a JVM on Windows would).
 write_stub_mvn() {
-    cat >"$1/mvn" <<'STUB'
+    local bindir=$1
+    cat >"$bindir/mvn" <<'STUB'
 #!/usr/bin/env bash
 set -f
 printf '%s\n' "$*" >> "$STUB_LOG"
 printf 'MSYS2_ARG_CONV_EXCL=%s\n' "${MSYS2_ARG_CONV_EXCL:-unset}" >> "$STUB_LOG"
 mode=${STUB_MODE:-normal}
-if [ "$mode" = fail ]; then echo "[ERROR] stub maven failure"; exit 1; fi
+if [[ "$mode" = fail ]]; then echo "[ERROR] stub maven failure"; exit 1; fi
 pat=''
 for a in "$@"; do
     case $a in -DspotlessFiles=*) pat=${a#-DspotlessFiles=} ;; esac
@@ -89,13 +104,19 @@ IFS=','
 for p in $pat; do
     IFS=$oldifs
     q=${p#'\Q'}; q=${q%'\E'}
+    # Undo Pattern.quote()'s escaping of an embedded \E.
+    probe=${q//'\E\\E\Q'/$'\001'}
+    case $probe in
+        *'\E'*) IFS=','; continue ;; # malformed: not a literal quote of any path
+        *) q=${probe//$'\001'/'\E'} ;;
+    esac
     # A JVM on Windows resolves "C:\a\b"; this test filesystem holds "/a/b".
-    if [ "$mode" = winpath ]; then
+    if [[ "$mode" = winpath ]]; then
         case $q in
             [A-Za-z]:\\*) q=$(printf '%s' "$q" | sed -e 's|^[A-Za-z]:||' -e 's|\\|/|g') ;;
         esac
     fi
-    if [ -f "$q" ]; then
+    if [[ -f "$q" ]]; then
         n=$((n + 1))
         grep -v 'UNFORMATTED' "$q" > "$q.stub" 2>/dev/null || true
         mv "$q.stub" "$q"
@@ -110,7 +131,8 @@ case $mode in
 esac
 exit 0
 STUB
-    chmod +x "$1/mvn"
+    chmod +x "$bindir/mvn"
+    return 0
 }
 
 # A fresh repo with the hook available. Sets: REPO, BIN, STUB_LOG.
@@ -129,11 +151,14 @@ new_repo() {
         git config commit.gpgsign false
         git config core.hooksPath .git/hooks
     )
+    return 0
 }
 
-java_file() { # path marker
-    mkdir -p "$REPO/$(dirname "$1")"
-    printf 'package p;\nclass C { }\n%s\n' "${2:-}" >"$REPO/$1"
+java_file() {
+    local path=$1 marker=${2:-}
+    mkdir -p "$REPO/$(dirname "$path")"
+    printf 'package p;\nclass C { }\n%s\n' "$marker" >"$REPO/$path"
+    return 0
 }
 
 # Run the hook the way git would, but under $TEST_BASH. Sets HOOK_RC, HOOK_OUT.
@@ -145,17 +170,22 @@ run_hook() {
             "$TEST_BASH" "$HOOK" >"$HOOK_OUT" 2>&1
     )
     HOOK_RC=$?
+    return 0
 }
 
 staged_content() { # path -> stdout
-    (cd "$REPO" && git show ":$1" 2>/dev/null)
+    local path=$1
+    (cd "$REPO" && git show ":$path" 2>/dev/null)
+    return 0
 }
 
 begin() {
-    CASE="$1"
+    local case_name=$1
+    CASE="$case_name"
     STUB_MODE=normal
-    printf '\n== %s\n' "$1"
+    printf '\n== %s\n' "$case_name"
     new_repo
+    return 0
 }
 
 # --- cases -------------------------------------------------------------------
@@ -164,7 +194,7 @@ begin no_java_staged
 echo hi >"$REPO/notes.txt"
 (cd "$REPO" && git add notes.txt)
 run_hook
-assert_eq "$HOOK_RC" 0 'exits 0'
+assert_eq "$HOOK_RC" 0 "$EXITS_0"
 assert_eq "$(wc -l <"$STUB_LOG" | tr -d ' ')" 0 'never invokes maven'
 
 begin nothing_staged
@@ -175,7 +205,7 @@ begin formats_and_restages
 java_file src/main/java/A.java UNFORMATTED
 (cd "$REPO" && git add src/main/java/A.java)
 run_hook
-assert_eq "$HOOK_RC" 0 'exits 0'
+assert_eq "$HOOK_RC" 0 "$EXITS_0"
 staged_content src/main/java/A.java >"$REPO/.idx"
 assert_not_contains "$REPO/.idx" UNFORMATTED 'index holds the formatted content'
 assert_not_contains "$REPO/src/main/java/A.java" UNFORMATTED 'worktree holds the formatted content'
@@ -190,7 +220,7 @@ java_file src/main/java/A.java UNFORMATTED
     printf 'package p;\nclass C { }\nUNFORMATTED\nSTAGED_EDIT\nSECRET_UNSTAGED\n' >src/main/java/A.java
 )
 run_hook
-assert_eq "$HOOK_RC" 0 'exits 0'
+assert_eq "$HOOK_RC" 0 "$EXITS_0"
 staged_content src/main/java/A.java >"$REPO/.idx"
 assert_not_contains "$REPO/.idx" SECRET_UNSTAGED 'unstaged line stays OUT of the index'
 assert_contains "$REPO/src/main/java/A.java" SECRET_UNSTAGED 'unstaged line survives in the worktree'
@@ -208,7 +238,7 @@ java_file src/main/java/Partial.java UNFORMATTED
     printf 'package p;\nclass C { }\nUNFORMATTED\ny\nEXTRA\n' >src/main/java/Partial.java
 )
 run_hook
-assert_eq "$HOOK_RC" 0 'exits 0'
+assert_eq "$HOOK_RC" 0 "$EXITS_0"
 staged_content src/main/java/Clean.java >"$REPO/.c"
 staged_content src/main/java/Partial.java >"$REPO/.p"
 assert_not_contains "$REPO/.c" UNFORMATTED 'clean file is formatted'
@@ -220,7 +250,7 @@ begin path_with_metachars
 java_file 'src/main/java/weird (x86)+dir/A.java' UNFORMATTED
 (cd "$REPO" && git add .)
 run_hook
-assert_eq "$HOOK_RC" 0 'exits 0'
+assert_eq "$HOOK_RC" 0 "$EXITS_0"
 assert_contains "$STUB_LOG" '\Q' 'passes a regex-quoted pattern'
 assert_contains "$STUB_LOG" 'weird (x86)+dir' 'pattern carries the literal directory name'
 assert_not_contains "$REPO/src/main/java/weird (x86)+dir/A.java" UNFORMATTED 'file with metachars is formatted'
@@ -229,7 +259,7 @@ begin filename_with_spaces
 java_file 'src/main/java/My Class.java' UNFORMATTED
 (cd "$REPO" && git add .)
 run_hook
-assert_eq "$HOOK_RC" 0 'exits 0'
+assert_eq "$HOOK_RC" 0 "$EXITS_0"
 assert_not_contains "$REPO/src/main/java/My Class.java" UNFORMATTED 'file with a space is formatted'
 
 begin path_with_comma_is_skipped
@@ -247,7 +277,7 @@ java_file src/main/java/Old.java UNFORMATTED
     git mv src/main/java/Old.java src/main/java/New.java
 )
 run_hook
-assert_eq "$HOOK_RC" 0 'exits 0'
+assert_eq "$HOOK_RC" 0 "$EXITS_0"
 assert_contains "$STUB_LOG" New.java 'a rename is offered to Spotless (ACMR, not ACM)'
 
 begin missing_maven_does_not_block
@@ -259,7 +289,7 @@ nomvn="$REPO/.nomvn"
 mkdir -p "$nomvn"
 for cmd in git awk uname cygpath; do
     real=$(command -v "$cmd" 2>/dev/null) || continue
-    [ -n "$real" ] || continue
+    [[ -n "$real" ]] || continue
     printf '#!/bin/sh\nexec "%s" "$@"\n' "$real" >"$nomvn/$cmd"
     chmod +x "$nomvn/$cmd"
 done
@@ -285,7 +315,7 @@ java_file src/main/java/A.java UNFORMATTED
 (cd "$REPO" && git add . && git commit -qm init --no-verify)
 (cd "$REPO" && printf 'package p;\nclass C { }\nUNFORMATTED\nz\n' >src/main/java/A.java && git add .)
 run_hook
-if [ "$HOOK_RC" -ne 0 ]; then ok 'blocks the commit when Spotless matched nothing'; else
+if [[ "$HOOK_RC" -ne 0 ]]; then ok 'blocks the commit when Spotless matched nothing'; else
     no 'blocks the commit when Spotless matched nothing (exited 0)'
 fi
 assert_contains "$HOOK_OUT" 'matched none' 'explains the no-op'
@@ -304,7 +334,7 @@ STUB_MODE=fail
 java_file src/main/java/A.java UNFORMATTED
 (cd "$REPO" && git add .)
 run_hook
-if [ "$HOOK_RC" -ne 0 ]; then ok 'blocks the commit when maven fails'; else
+if [[ "$HOOK_RC" -ne 0 ]]; then ok 'blocks the commit when maven fails'; else
     no 'blocks the commit when maven fails (exited 0)'
 fi
 assert_contains "$HOOK_OUT" 'stub maven failure' 'surfaces the maven output'
@@ -319,7 +349,7 @@ HOOK_OUT="$REPO/.hook-out"
             "$TEST_BASH" "$HOOK" >"$HOOK_OUT" 2>&1
 )
 HOOK_RC=$?
-assert_eq "$HOOK_RC" 0 'exits 0'
+assert_eq "$HOOK_RC" 0 "$EXITS_0"
 assert_not_contains "$REPO/src/main/java/deep/A.java" UNFORMATTED 'resolves the repo root from a subdirectory'
 
 # End to end: installed as a real hook and driven by `git commit`, so the shebang
@@ -377,6 +407,27 @@ assert_contains "$STUB_LOG" '\QC:\' 'builds a regex-quoted backslash Windows pat
 assert_contains "$STUB_LOG" 'MSYS2_ARG_CONV_EXCL=-DspotlessFiles' 'guards against MSYS argument mangling'
     assert_not_contains "$REPO/src/main/java/Program Files (x86)/A.java" UNFORMATTED \
         'formats a Windows-style path containing spaces and metacharacters'
+
+    begin windows_path_with_backslash_E
+    STUB_MODE=winpath
+    cat >"$BIN/uname" <<'FAKE_UNAME'
+#!/bin/sh
+echo MINGW64_NT-10.0-22631
+FAKE_UNAME
+    cat >"$BIN/cygpath" <<'FAKE_CYGPATH'
+#!/bin/sh
+last=''
+for a in "$@"; do last=$a; done
+printf '%s\n' "$last" | sed -e 's|^/|C:/|' -e 's|/|\\|g'
+FAKE_CYGPATH
+    chmod +x "$BIN/uname" "$BIN/cygpath"
+    java_file 'src/main/java/Eclipse/A.java' UNFORMATTED
+    (cd "$REPO" && git add .)
+    run_hook
+    assert_eq "$HOOK_RC" 0 'exits 0 on a path holding a literal \E'
+    assert_contains "$STUB_LOG" '\E\\E\Q' 'escapes the embedded \E the way Pattern.quote does'
+    assert_not_contains "$REPO/src/main/java/Eclipse/A.java" UNFORMATTED \
+        'formats a Windows path whose directory starts with E'
     ;;
 esac
 
@@ -387,7 +438,7 @@ esac
 # path handling above changes. Needs Maven, a JDK and (on a cold cache) the
 # network, hence opt-in. The plugin version is read from the parent POM so this
 # test cannot drift away from what the BOM ships.
-if [ "${E2E:-0}" = 1 ]; then
+if [[ "${E2E:-0}" = 1 ]]; then
     begin e2e_real_spotless
     SPOTLESS_VERSION=$(sed -n \
         's/.*<spotless-maven-plugin\.version>\([^<]*\)<.*/\1/p' "$HERE/../pom.xml" | head -1)
@@ -428,7 +479,7 @@ printf '\n--------------------------------------------------\n'
 printf 'bash under test: %s\n' "$("$TEST_BASH" -c 'echo $BASH_VERSION')"
 printf 'git:             %s\n' "$(git --version)"
 printf 'passed: %s   failed: %s\n' "$PASS" "$FAIL"
-if [ "$FAIL" -ne 0 ]; then
+if [[ "$FAIL" -ne 0 ]]; then
     printf 'failures:%s\n' "$FAILED_CASES"
     exit 1
 fi

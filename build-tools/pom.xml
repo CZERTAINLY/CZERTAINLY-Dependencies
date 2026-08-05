@@ -78,7 +78,24 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Central requires a -javadoc.jar for every published artifact. This module is resources-only. -->
+            <!-- Central requires BOTH a -javadoc.jar and a -sources.jar for every published jar artifact,
+                 and rejects the deployment after the tag is already pushed if either is missing. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <forceCreation>true</forceCreation>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

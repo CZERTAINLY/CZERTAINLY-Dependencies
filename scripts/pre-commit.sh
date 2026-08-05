@@ -32,7 +32,7 @@ cd "$repo_root"
 
 # A missing build tool must not make committing impossible: warn and let the
 # commit through, because `mvn verify` in CI still gates the branch.
-if [ -x ./mvnw ]; then
+if [[ -x ./mvnw ]]; then
     maven=./mvnw
 elif command -v mvn >/dev/null 2>&1; then
     maven=mvn
@@ -49,7 +49,7 @@ while IFS= read -r -d '' file; do
     staged+=("$file")
 done < <(git diff --cached --name-only --diff-filter=ACMR -z -- '*.java')
 
-[ "${#staged[@]}" -ne 0 ] || exit 0
+[[ "${#staged[@]}" -ne 0 ]] || exit 0
 
 # `git add` stages a file's CURRENT WORKTREE content, not the formatted version of what was staged.
 formattable=()
@@ -62,23 +62,26 @@ for file in ${staged[@]+"${staged[@]}"}; do
     fi
 done
 
-if [ "${#partial[@]}" -ne 0 ]; then
+if [[ "${#partial[@]}" -ne 0 ]]; then
     warn 'left alone -- these have unstaged changes that re-staging would sweep into the commit:'
     for file in ${partial[@]+"${partial[@]}"}; do warn "    $file"; done
     warn 'stage them completely, or run "mvn spotless:apply" yourself, before pushing.'
 fi
 
-[ "${#formattable[@]}" -ne 0 ] || exit 0
+[[ "${#formattable[@]}" -ne 0 ]] || exit 0
 
 # -DspotlessFiles is NOT a list of paths: spotless-maven-plugin splits the value
 # on ',', Pattern.compile()s each piece, and full-matches it against
-# File.getAbsolutePath(). Three consequences:
+# File.getAbsolutePath(). Four consequences:
 #
 #   * the path must be spelled the way the JVM will spell it -- backslashes on
 #     Windows, where git hands us forward slashes; hence cygpath.
 #   * every path must be regex-quoted with \Q..\E. Without it a directory named
 #     "Program Files (x86)" matches NOTHING, Spotless formats nothing, and the
 #     build still exits 0 -- a silent no-op that lands unformatted code.
+#   * \Q..\E is not itself nestable: a literal \E INSIDE the path closes the
+#     quoted span early and the remainder is read as raw regex. Consider
+#     "C:\Eclipse\..." on Windows.
 #   * a ',' in a path cannot survive the plugin's split(), so such a file is
 #     reported and skipped rather than silently mis-matched.
 case $(uname -s) in
@@ -91,7 +94,7 @@ targets=()
 uncommaable=()
 for file in ${formattable[@]+"${formattable[@]}"}; do
     abs="$repo_root/$file"
-    if [ "$windows" -eq 1 ] && command -v cygpath >/dev/null 2>&1; then
+    if [[ "$windows" -eq 1 ]] && command -v cygpath >/dev/null 2>&1; then
         abs=$(cygpath -w -- "$abs")
     fi
     case $abs in
@@ -99,17 +102,19 @@ for file in ${formattable[@]+"${formattable[@]}"}; do
         uncommaable+=("$file")
         continue
         ;;
+    *) ;; # every other path is usable as-is; fall through to the quoting below
     esac
-    patterns="${patterns:+$patterns,}\\Q$abs\\E"
+    esc=${abs//'\E'/'\E\\E\Q'}
+    patterns="${patterns:+$patterns,}\\Q$esc\\E"
     targets+=("$file")
 done
 
-if [ "${#uncommaable[@]}" -ne 0 ]; then
+if [[ "${#uncommaable[@]}" -ne 0 ]]; then
     warn 'left alone -- a comma in the path cannot be passed through -DspotlessFiles:'
     for file in ${uncommaable[@]+"${uncommaable[@]}"}; do warn "    $file"; done
 fi
 
-[ -n "$patterns" ] || exit 0
+[[ -n "$patterns" ]] || exit 0
 
 # Deliberately not -q: the "Spotless.Java is keeping N files clean" line is the
 # only evidence that the regex above actually matched, and -q suppresses it.
@@ -134,13 +139,13 @@ matched=$(printf '%s\n' "$output" | awk '
     END { print total + 0 }
 ')
 
-if [ "$matched" -eq 0 ]; then
+if [[ "$matched" -eq 0 ]]; then
     printf '%s\n' "$output" >&2
     die "Spotless matched none of the ${#targets[@]} staged file(s). Either this hook's
             path handling is wrong on this platform (please report it), or the files sit
             outside the configured Spotless <includes>. Commit blocked rather than
             silently committing unformatted code; use --no-verify to override."
-elif [ "$matched" -lt "${#targets[@]}" ]; then
+elif [[ "$matched" -lt "${#targets[@]}" ]]; then
     warn "Spotless matched only $matched of the ${#targets[@]} staged file(s); the rest are
             probably outside its configured <includes> and remain unformatted."
 fi
