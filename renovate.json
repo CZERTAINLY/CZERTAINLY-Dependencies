@@ -2,5 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base"
+  ],
+  "packageRules": [
+    {
+      "description": "com.otilm:build-tools is not an external dependency: it ships from this very reactor, and build-tools.version must equal this POM's own <version>. maven-enforcer asserts that lockstep (the build-tools-version-lockstep rule in build-tools/pom.xml), so a Renovate PR bumping it to some released build-tools would fail the build rather than update anything. It is bumped by hand as part of a release.",
+      "matchPackageNames": [
+        "com.otilm:build-tools"
+      ],
+      "enabled": false
+    }
   ]
 }

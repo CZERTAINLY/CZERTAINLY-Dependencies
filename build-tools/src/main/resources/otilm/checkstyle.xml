@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+  OmniTrust ILM lint gate. Complements Spotless: Spotless normalises whitespace/wrapping and orders
+  imports, but it cannot forbid wildcard imports (no type info) or require braces. These rules close
+  that gap and run in the same `verify` phase as spotless:check.
+
+  Four rules, and it stays four. Every rule here is one that 20+ repos must satisfy at once, and
+  unlike a formatting rule none of them can be fixed by running a command — see CLAUDE.md.
+
+  Every <property> below restates the Checkstyle 13.6.0 default; each was verified by diffing the
+  reported violations against a bare module declaration. They are spelled out so an upstream default
+  change cannot quietly loosen the gate on a checkstyle.version bump, not because they alter
+  anything today.
+-->
+<module name="Checker">
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <module name="TreeWalker">
+        <!-- Spotless deletes unused imports but never expands a wildcard into explicit single-type imports.
+             Do it here. -->
+        <module name="AvoidStarImport">
+            <property name="allowClassImports" value="false"/>
+            <property name="allowStaticMemberImports" value="false"/>
+        </module>
+
+        <!-- if/else/for/while/do only. A switch case or default body and a lambda body may still
+             omit braces — neither is in the token set, and both are idiomatic without. -->
+        <module name="NeedBraces">
+            <property name="tokens"
+                      value="LITERAL_DO,LITERAL_ELSE,LITERAL_FOR,LITERAL_IF,LITERAL_WHILE"/>
+        </module>
+
+        <!-- Keep imports which are used only in JavaDoc {@link}. -->
+        <module name="UnusedImports">
+            <property name="processJavadoc" value="true"/>
+        </module>
+
+        <!-- Catches what UnusedImports cannot: an import that IS used but should never have been
+             written — a duplicate, or a type from java.lang or from this file's own package. -->
+        <module name="RedundantImport"/>
+    </module>
+</module>

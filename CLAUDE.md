@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **Maven parent POM** (no application source code) that serves as the centralized dependency management BOM for the ILM platform. Java/Spring Boot modules and connectors inherit from this POM to get standardized, pre-vetted library versions.
+This is a **Maven parent POM** (no application source code) that serves as the centralized dependency management BOM for the ILM platform. Java/Spring Boot modules and connectors inherit from this POM to get standardized, pre-vetted library versions. It also owns the platform's Java **formatting and lint gates** (see below), which children likewise inherit.
 
 - **Group ID**: `com.otilm`
 - **Artifact ID**: `dependencies`
@@ -25,7 +25,15 @@ mvn help:effective-pom
 mvn help:evaluate -Dexpression=project.version -q -DforceStdout
 ```
 
-There are no tests or source code to compile in this repository itself. The `verify` phase validates the POM structure and runs JaCoCo (inherited by child projects).
+```bash
+# Run once after cloning. Both gates take com.otilm:build-tools on their PLUGIN classpath, and a
+# standalone goal invocation (unlike a lifecycle build) does not package it first, so `mvn
+# spotless:apply` — which is what the pre-commit hook runs — cannot construct its plugin realm
+# until build-tools exists in ~/.m2.
+mvn -B install
+```
+
+The only Java in this repository is the `formatter-selftest` fixture set; the aggregator itself has nothing to compile. The `verify` phase validates the POM structure, smoke-tests the Checkstyle ruleset and the formatter profile, and runs JaCoCo (inherited by child projects).
 
 ## Versioning Rules
 
@@ -45,6 +53,45 @@ There are no tests or source code to compile in this repository itself. The `ver
 - **JaCoCo** runs coverage during the `package` phase
 - **maven-jar-plugin** disables Maven descriptor in archives (`addMavenDescriptor: false`)
 - **maven-compiler-plugin** enables `parameters=true` for reflection support
+
+## Formatting and lint gates (inherited by child projects)
+
+Two plugins, both bound to `verify`, so a child's existing CI gates on them with no workflow
+changes. Their rules live in the `com.otilm:build-tools` module of this reactor and ship inside
+its jar; both plugins read them off their **plugin** classpath, which is why this POM declares
+`<pluginRepositories>`.
+
+- **Spotless** (`spotless:check`) — formats `src/{main,test}/java` from
+  `otilm/eclipse-formatter.xml` (Eclipse JDT engine) and `otilm/eclipse.importorder`. `mvn
+  spotless:apply` fixes every violation mechanically.
+- **Checkstyle** (`checkstyle:check`) — `otilm/checkstyle.xml`, exactly four rules that Spotless
+  *cannot* enforce: `AvoidStarImport`, `NeedBraces`, `UnusedImports`, `RedundantImport`. These
+  need hand-fixing; `spotless:apply` will not do it.
+- **`.editorconfig`** is the IDE-side mirror of the Eclipse profile and must be kept in parity
+  with it — the procedure is in the header of `otilm/eclipse-formatter.xml`.
+- **`scripts/pre-commit.sh`** formats staged Java files before commit. It ships in the
+  build-tools jar, so a child gets it installed automatically at `initialize`; `scripts/test-pre-commit.sh`
+  is its test harness and runs on all three platforms in `hook-tests.yml`.
+
+**Keep `checkstyle.xml` to those four rules.** It exists to close Spotless's blind spots, not to
+become a second linter — every rule added there is a rule 20+ repos must satisfy at once, and
+unlike a formatting rule it cannot be fixed by running a command.
+
+Escape hatches, in order of bluntness: `-Dspotless.skip=true`, `-Dcheckstyle.skip=true`,
+`-Dgitbuildhook.install.skip=true`, and `git commit --no-verify` for the hook.
+
+### Rolling the gates out to a child repo
+
+Order matters — bumping the parent first leaves the repo red until the reformat lands:
+
+1. `mvn spotless:apply`, then hand-fix what Checkstyle reports.
+2. Commit that as a single mechanical reformat commit, touching nothing else.
+3. Record its SHA in a `.git-blame-ignore-revs` at the repo root; the `blame-ignore-revs`
+   profile then wires local `git blame` to skip it automatically (GitHub's web UI does this on
+   its own).
+4. Copy in `.editorconfig` and `.gitattributes`. The parent POM cannot deliver these — they must
+   exist in the repo before the IDE or checkout honours them.
+5. Only then bump `<parent>` to the version carrying the gates.
 
 ## Dependency Updates
 
