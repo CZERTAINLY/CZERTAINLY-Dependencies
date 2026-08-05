@@ -425,6 +425,53 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Linked-worktree fixup, and it must run AFTER the install goal above. -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>mirror-hook-into-common-dir</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>initialize</phase>
+                                <configuration>
+                                    <target xmlns:if="ant:if">
+                                        <!-- failifexecutionfails: no git on PATH must not break the
+                                             build; the properties stay unset and nothing happens. -->
+                                        <exec executable="git" dir="${project.basedir}" failifexecutionfails="false"
+                                              logError="false" outputproperty="otilm.git.dir">
+                                            <arg value="rev-parse"/>
+                                            <arg value="--git-dir"/>
+                                        </exec>
+                                        <exec executable="git" dir="${project.basedir}" failifexecutionfails="false"
+                                              logError="false" outputproperty="otilm.git.hooks">
+                                            <arg value="rev-parse"/>
+                                            <arg value="--git-path"/>
+                                            <arg value="hooks"/>
+                                        </exec>
+                                        <property name="otilm.hook.installed" location="${otilm.git.dir}/hooks/pre-commit"/>
+                                        <property name="otilm.hook.live" location="${otilm.git.hooks}/pre-commit"/>
+                                        <condition property="otilm.hook.mirror">
+                                            <and>
+                                                <available file="${otilm.hook.installed}" type="file"/>
+                                                <not>
+                                                    <equals arg1="${otilm.hook.installed}" arg2="${otilm.hook.live}"/>
+                                                </not>
+                                            </and>
+                                        </condition>
+                                        <copy if:set="otilm.hook.mirror" file="${otilm.hook.installed}"
+                                              tofile="${otilm.hook.live}" overwrite="true"/>
+                                        <chmod if:set="otilm.hook.mirror" file="${otilm.hook.live}" perm="755"
+                                               osfamily="unix"/>
+                                        <echo if:set="otilm.hook.mirror" level="info"
+                                              message="linked worktree detected: mirrored the pre-commit hook to ${otilm.hook.live}"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -632,14 +679,8 @@
         </repository>
     </repositories>
 
+    <!-- Spotless and Checkstyle read their rules off build-tools, which sits on their PLUGIN classpath. -->
     <pluginRepositories>
-        <pluginRepository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/omnitrustilm/*</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
         <pluginRepository>
             <id>central-snapshots</id>
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>

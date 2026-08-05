@@ -33,6 +33,14 @@ Both gates run in the `verify` phase. Your existing CI already reaches that phas
 
 The rules live in the `com.otilm:build-tools` artifact, so you do not copy them into your repo. A `pre-commit` hook that formats your staged Java files is installed automatically on your first build; it ships in the same artifact.
 
+### What the hook install does to your repo
+
+**Every Maven build writes `.git/hooks/pre-commit`, replacing whatever is already there.** The content is the same on every build, so this is a no-op unless you keep a `pre-commit` hook of your own — and if you do, it will be overwritten without a prompt. Nothing chains it. Use `-Dgitbuildhook.install.skip=true` if you need your own hook to survive.
+
+Hooks are not tracked by Git, so this only ever affects your machine.
+
+Linked worktrees work: Maven mirrors the hook into the shared hooks directory that Git actually runs hooks from, because installing it into the per-worktree directory would leave it silently unused.
+
 ### Rolling it out to an existing repo
 
 **Do the reformat first and the version bump last.** In the other order your build is red in between.

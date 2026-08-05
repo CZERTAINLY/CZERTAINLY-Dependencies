@@ -73,6 +73,11 @@ its jar; both plugins read them off their **plugin** classpath, which is why thi
 - **`scripts/pre-commit.sh`** formats staged Java files before commit. It ships in the
   build-tools jar, so a child gets it installed automatically at `initialize`; `scripts/test-pre-commit.sh`
   is its test harness and runs on all three platforms in `hook-tests.yml`.
+  - The install **replaces** any existing `.git/hooks/pre-commit` on every build — no chaining,
+    no prompt. That is intended; `-Dgitbuildhook.install.skip=true` is the opt-out.
+  - In a **linked worktree**, an antrun step in the `install-git-hooks` profile mirrors the hook
+    into the common hooks dir, where Git runs it from. The `worktree-install` job in
+    `hook-tests.yml` guards this.
 
 **Keep `checkstyle.xml` to those four rules.** It exists to close Spotless's blind spots, not to
 become a second linter — every rule added there is a rule 20+ repos must satisfy at once, and

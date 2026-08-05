@@ -9,7 +9,7 @@
   that gap and run in the same `verify` phase as spotless:check.
 
   Four rules, and it stays four. Every rule here is one that 20+ repos must satisfy at once, and
-  unlike a formatting rule none of them can be fixed by running a command — see CLAUDE.md.
+  unlike a formatting rule none of them can be fixed by running a command.
 
   Every <property> below restates the Checkstyle 13.6.0 default; each was verified by diffing the
   reported violations against a bare module declaration. They are spelled out so an upstream default

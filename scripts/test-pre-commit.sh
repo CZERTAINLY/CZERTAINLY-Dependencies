@@ -210,7 +210,7 @@ staged_content src/main/java/A.java >"$REPO/.idx"
 assert_not_contains "$REPO/.idx" UNFORMATTED 'index holds the formatted content'
 assert_not_contains "$REPO/src/main/java/A.java" UNFORMATTED 'worktree holds the formatted content'
 
-# The blocker: a file staged in part must not have its unstaged remainder swept in.
+# A file staged in part must not have its unstaged remainder swept in.
 begin preserves_unstaged_changes
 java_file src/main/java/A.java UNFORMATTED
 (
@@ -458,8 +458,8 @@ if [[ "${E2E:-0}" = 1 ]]; then
   </plugin></plugins></build>
 </project>
 POM
-    # A directory whose name is full of regex metacharacters: unquoted, this is
-    # the silent no-op that shipped in the first version of this hook.
+    # A directory whose name is full of regex metacharacters. Without regex quoting,
+    # -DspotlessFiles matches nothing here and the hook formats no files at all.
     mkdir -p "$REPO/src/main/java/weird (x86)+dir"
     printf 'package p;\nimport java.util.List;\nclass C { }\n' \
         >"$REPO/src/main/java/weird (x86)+dir/C.java"
