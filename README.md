@@ -53,6 +53,22 @@ Linked worktrees work: Maven mirrors the hook into the shared hooks directory th
 6. Copy `.editorconfig` and `.gitattributes` from this repo. The parent POM cannot deliver these — your IDE only honours files that exist in your own repo.
 7. Commit the parent bump.
 
+### Existing Windows clones need a one-time refresh
+
+**On Windows, the first build after pulling the gates fails on files the reformat never touched.** Git rewrites a file on checkout only when the commit changed it, so `.gitattributes` arrives but the untouched files keep their CRLF line endings. Spotless reads the bytes on disk and rejects them.
+
+`git status` shows a clean tree the whole time, because the `text=auto` filter normalises CRLF on read. So there is a failing build with no Git-visible cause.
+
+This hits pre-existing clones with `core.autocrlf=true`. A fresh clone is fine, and so is CI. Any one of these fixes it:
+
+| Fix | Scope | Cost |
+|-----|-------|------|
+| Delete the clone and clone again | Every file | Loses uncommitted work, stashes and local branches |
+| `git rm --cached -r . && git reset --hard` | Every file | **Discards uncommitted changes** — commit or stash first |
+| `mvn spotless:apply` | `src/{main,test}/java` only | Leaves other text files on CRLF |
+
+The middle one is the usual choice. Run it once per repo, per clone.
+
 ### When you need to opt out
 
 | Situation                           | Escape hatch                       |

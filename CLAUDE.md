@@ -99,6 +99,12 @@ Order matters — bumping the parent first leaves the repo red until the reforma
    exist in the repo before the IDE or checkout honours them.
 5. Only then bump `<parent>` to the version carrying the gates.
 
+**Existing Windows clones need a one-time line-ending refresh.** Checkout rewrites only the
+files a commit changed, so `.gitattributes` lands while the untouched files keep CRLF and
+Spotless rejects them — with `git status` reporting a clean tree throughout. Fix per clone:
+re-clone, or `git rm --cached -r . && git reset --hard` (discards uncommitted changes), or
+`mvn spotless:apply` (covers `src/{main,test}/java` only). Fresh clones and CI are unaffected.
+
 ## Dependency Updates
 
 Automated via Renovate (`renovate.json`). PRs are created automatically when new dependency versions are available.
