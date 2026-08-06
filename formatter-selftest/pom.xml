@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.otilm</groupId>
+        <artifactId>dependencies</artifactId>
+        <version>1.4.3-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>formatter-selftest</artifactId>
+    <packaging>jar</packaging>
+
+    <name>formatter-selftest</name>
+    <description>ILM - regression fixtures for the canonical Java formatter profile; not published</description>
+
+    <!-- Why this module exists: nothing else in this repo ever runs the formatter. Spotless is
+         unbound in the aggregator (bootstrap cycle) and in build-tools (no sources), so
+         otilm/eclipse-formatter.xml was shipped to every child repo without a single engine ever
+         having parsed it. Eclipse JDT SILENTLY IGNORES an unknown or misspelled <setting id>, so a
+         typo does not fail anything here — it just quietly changes how 20+ repos get formatted, and
+         the first symptom is a child's whole source tree turning up dirty.
+         The fixtures under src/main/java are canonical output — they are what `spotless:apply`
+         produces, never hand-edited. The ordinary inherited spotless:check then asserts that the
+         profile still produces exactly them, so a change that alters formatting fails HERE, before
+         it can be published. Mutation-tested; the results define what this module does and does not
+         cover:
+           tabulation.char space -> tab .......................... caught
+           lineSplit 120 -> 100 ................................. caught
+           tabulation.char id misspelled ........................ caught (default is tab)
+           tabulation.size id misspelled ........................ not caught (default is also 4)
+           lineSplit removed entirely ........................... not caught (default is also 120)
+           number_of_empty_lines_to_preserve 1 -> 3 ............. not caught
+         The two "default is also" rows are not gaps: an ignored setting whose engine default equals
+         our value changes nothing today, and the check starts failing the moment an Eclipse JDT bump
+         moves that default — which is exactly when it begins to matter.
+         The last row IS a real limit. A setting that only governs how NON-canonical input is
+         normalised (collapsing blank runs, rewrapping over-long lines) cannot be exercised by a
+         fixture that is already canonical. Covering those needs a second, deliberately misformatted
+         fixture set plus an expected-output comparison, which this module does not have.
+         The module depends on nothing and has no unit tests: the gate is the assertion. Ordered
+         after build-tools in the parent's <modules> so Spotless resolves the rules from the reactor
+         rather than from a repository. -->
+
+    <properties>
+        <!-- Fixtures are not a product. maven.install.skip keeps them out of ~/.m2;
+             maven.deploy.skip covers the github profile, which deploys via maven-deploy-plugin.
+             The central profile does NOT honour either flag — central-publishing-maven-plugin
+             never reads them (checked against the 0.11.0 bytecode) — so the parent's central
+             profile excludes this artifactId explicitly. Both halves are needed. -->
+        <maven.install.skip>true</maven.install.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
+</project>

@@ -54,7 +54,7 @@ jobs:
         run: |
           set -o pipefail
           mvn --batch-mode -Pcentral -Dgpg.passphrase="$GPG_PASSPHRASE" \
-              source:jar javadoc:jar -f pom.xml deploy | tee mvn.log
+              -f pom.xml deploy | tee mvn.log
 
           # For releases, surface the deploymentId so it's easy to find in the Portal UI.
           if [[ "${{ github.ref_type }}" == "tag" ]]; then
@@ -83,7 +83,7 @@ jobs:
           server-password: GITHUB_TOKEN
 
       - name: Publish to GitHub Packages
-        run: mvn --batch-mode -Pgithub source:jar javadoc:jar -f pom.xml deploy
+        run: mvn --batch-mode -Pgithub -f pom.xml deploy
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

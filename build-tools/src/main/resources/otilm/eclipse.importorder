@@ -1,0 +1,7 @@
+#Organize Import Order
+# Mirrors IntelliJ IDEA's DEFAULT import layout so stock "Optimize Imports" agrees with the build:
+#   (empty)   -> all non-static imports, sorted alphabetically by FQN as a single group
+#                (com.*, jakarta.*, java.*, javax.*, org.* ... no java/javax/jakarta sub-grouping)
+#   \#        -> all static imports, placed last (Spotless/Eclipse inserts one blank line before them)
+0=
+1=\#

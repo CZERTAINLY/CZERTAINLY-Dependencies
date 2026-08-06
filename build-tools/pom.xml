@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.otilm</groupId>
+        <artifactId>dependencies</artifactId>
+        <version>1.4.3-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>build-tools</artifactId>
+    <packaging>jar</packaging>
+
+    <name>build-tools</name>
+    <description>ILM - shared build configuration: canonical Java formatter profile and import order, consumed by Spotless</description>
+    <url>https://github.com/OmniTrustILM/dependencies</url>
+
+    <properties>
+        <!-- Keeps a standalone `mvn spotless:apply` working in this repo. A lifecycle build is
+             fine unaided — package runs before verify, so Spotless resolves build-tools straight
+             out of the reactor — but a direct goal invocation builds no jar first, so the plugin realm
+             cannot be constructed and Maven fails before any skip flag is read. That direct invocation is
+             exactly what scripts/pre-commit.sh runs. Note this property alone would NOT be enough for the
+             lifecycle case; the unbinding below is what does that work. -->
+        <spotless.skip>true</spotless.skip>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- Ship the pre-commit hook in the jar so child repos install it off the plugin classpath
+                 (see the hooks-from-build-tools-jar profile in the parent). -->
+            <resource>
+                <directory>${project.basedir}/../scripts</directory>
+                <targetPath>scripts</targetPath>
+                <includes>
+                    <include>pre-commit.sh</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- The parent's build-tools.version property has to be a literal (inherited property values re-interpolate
+                 in the consuming project), so it duplicates the reactor version. Assert here that the two agree. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>build-tools-version-lockstep</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireProperty>
+                                    <property>build-tools.version</property>
+                                    <regex>\Q${project.version}\E</regex>
+                                    <regexMessage>build-tools.version is ${build-tools.version} but this reactor builds ${project.version} — bump build-tools.version in the parent pom.xml to match &lt;version&gt;.</regexMessage>
+                                </requireProperty>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Unbind spotless:check here: this module has no Java sources for it to look at. -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>spotless-check</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Central requires BOTH a -javadoc.jar and a -sources.jar for every published jar artifact,
+                 and rejects the deployment after the tag is already pushed if either is missing. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <forceCreation>true</forceCreation>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>placeholder-javadoc-jar</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <classifier>javadoc</classifier>
+                            <classesDirectory>${project.build.directory}/placeholder-javadoc</classesDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- ...and the directory it packs, so the jar is created on a clean checkout. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>make-placeholder-javadoc-dir</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/placeholder-javadoc"/>
+                                <echo file="${project.build.directory}/placeholder-javadoc/README.txt">This
+artifact ships build configuration resources only (formatter profile, import order,
+Checkstyle rules) and has no Java sources to document. This placeholder exists
+because Maven Central requires a -javadoc.jar for every published artifact.</echo>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

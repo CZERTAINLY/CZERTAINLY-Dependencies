@@ -1,0 +1,16 @@
+This file exists solely to be detected by Maven profile activation in pom.xml.
+It marks "this checkout is the dependencies aggregator itself", as opposed to a
+child repo that inherits from it. Two profiles key off it:
+
+  skip-format-gates-on-aggregator  (<exists>)  - unbind Spotless/Checkstyle here, because build-tools is built by
+                                                 this same reactor (bootstrap cycle)
+  hooks-from-build-tools-jar       (<missing>) - only children pull the pre-commit hook off the plugin classpath
+
+An earlier version keyed off <exists>build-tools/pom.xml</exists>, which is not
+unique: any child repo that happens to contain a module directory named
+build-tools would have silently had its formatting gate disabled. A marker with
+this name cannot collide by accident.
+
+Do not delete or rename this file without updating pom.xml. Maven's FileProfileActivator only ever evaluates
+ONE path per profile - given both <exists> and <missing> in the same <file> element it uses <exists> and silently
+ignores <missing> - so each activation condition above must stay in its own profile.

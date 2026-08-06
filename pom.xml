@@ -12,7 +12,8 @@
 
     <groupId>com.otilm</groupId>
     <artifactId>dependencies</artifactId>
-    <version>1.4.2</version>
+    <!-- keep in sync with build-tools.version below; the build asserts it -->
+    <version>1.4.3-SNAPSHOT</version>
 
     <name>dependencies</name>
     <packaging>pom</packaging>
@@ -41,6 +42,13 @@
         <developerConnection>scm:git:ssh://git@github.com/OmniTrustILM/dependencies.git</developerConnection>
         <url>https://github.com/OmniTrustILM/dependencies</url>
     </scm>
+
+    <modules>
+        <module>build-tools</module>
+        <!-- Order matters: formatter-selftest runs Spotless against the rules build-tools produces,
+             and a plugin dependency resolves from the reactor only once that module is packaged. -->
+        <module>formatter-selftest</module>
+    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -80,6 +88,23 @@
         <hibernate-enhance-maven-plugin.version>${hibernate.version}</hibernate-enhance-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
+        <!-- Spotless: both the plugin and the bundled Eclipse JDT formatter are pinned, because
+             .editorconfig is hand-tuned against this exact engine. Bumping either requires re-running the IntelliJ
+             round-trip parity check — procedure documented in build-tools/src/main/resources/otilm/eclipse-formatter.xml.  -->
+        <spotless-maven-plugin.version>3.7.0</spotless-maven-plugin.version>
+        <spotless.eclipse-jdt.version>4.40</spotless.eclipse-jdt.version>
+        <!-- build-tools carries the formatter rules and ships from this reactor, so this must match <version> above.
+             It has to be a literal, not ${project.version}: inherited property values are re-interpolated in each consuming
+             project, so ${project.version} here would resolve to the child repo's own version. -->
+        <build-tools.version>1.4.3-SNAPSHOT</build-tools.version>
+        <!-- Children gate on formatting by default; skip-format-gates-on-aggregator below
+             flips both to true to break the build-tools bootstrap cycle. -->
+        <spotless.skip>false</spotless.skip>
+        <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+        <checkstyle.version>13.6.0</checkstyle.version>
+        <checkstyle.skip>false</checkstyle.skip>
+        <!-- git-build-hook auto-installs the pre-commit hook. Bound to initialize, so any `mvn …` installs it. -->
+        <git-build-hook-maven-plugin.version>3.6.0</git-build-hook-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -282,6 +307,11 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>com.rudikershaw.gitbuildhook</groupId>
+                    <artifactId>git-build-hook-maven-plugin</artifactId>
+                    <version>${git-build-hook-maven-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -289,10 +319,286 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
+            <!-- Spotless enforces the canonical Java style. -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless-maven-plugin.version}</version>
+                <configuration>
+                    <skip>${spotless.skip}</skip>
+                    <java>
+                        <includes>
+                            <include>src/main/java/**/*.java</include>
+                            <include>src/test/java/**/*.java</include>
+                        </includes>
+                        <eclipse>
+                            <version>${spotless.eclipse-jdt.version}</version>
+                            <file>otilm/eclipse-formatter.xml</file>
+                        </eclipse>
+                        <importOrder>
+                            <file>otilm/eclipse.importorder</file>
+                        </importOrder>
+                        <removeUnusedImports/>
+                        <trimTrailingWhitespace/>
+                        <endWithNewline/>
+                    </java>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.otilm</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>${build-tools.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>spotless-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Checkstyle lint gate, closing the four gaps Spotless cannot. The ruleset is
+                 build-tools/src/main/resources/otilm/checkstyle.xml here, and ships in the
+                 build-tools JAR as otilm/checkstyle.xml. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
+                <configuration>
+                    <skip>${checkstyle.skip}</skip>
+                    <configLocation>otilm/checkstyle.xml</configLocation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <!-- Match Spotless's scope, which is src/{main,test}/java only. -->
+                    <excludeGeneratedSources>true</excludeGeneratedSources>
+                    <failOnViolation>true</failOnViolation>
+                    <violationSeverity>error</violationSeverity>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.otilm</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>${build-tools.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>checkstyle-lint</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <profiles>
+        <!-- Auto-install the pre-commit hook on the first build of a clone. -->
+        <profile>
+            <id>install-git-hooks</id>
+            <activation>
+                <file>
+                    <exists>.git</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.rudikershaw.gitbuildhook</groupId>
+                        <artifactId>git-build-hook-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>install-git-hooks</id>
+                                <goals>
+                                    <goal>install</goal>
+                                </goals>
+                                <phase>initialize</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Linked-worktree fixup, and it must run AFTER the install goal above. -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>mirror-hook-into-common-dir</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>initialize</phase>
+                                <configuration>
+                                    <target xmlns:if="ant:if">
+                                        <!-- failifexecutionfails: no git on PATH must not break the
+                                             build; the properties stay unset and nothing happens. -->
+                                        <exec executable="git" dir="${project.basedir}" failifexecutionfails="false"
+                                              logError="false" outputproperty="otilm.git.dir">
+                                            <arg value="rev-parse"/>
+                                            <arg value="--git-dir"/>
+                                        </exec>
+                                        <exec executable="git" dir="${project.basedir}" failifexecutionfails="false"
+                                              logError="false" outputproperty="otilm.git.hooks">
+                                            <arg value="rev-parse"/>
+                                            <arg value="--git-path"/>
+                                            <arg value="hooks"/>
+                                        </exec>
+                                        <property name="otilm.hook.installed" location="${otilm.git.dir}/hooks/pre-commit"/>
+                                        <property name="otilm.hook.live" location="${otilm.git.hooks}/pre-commit"/>
+                                        <condition property="otilm.hook.mirror">
+                                            <and>
+                                                <available file="${otilm.hook.installed}" type="file"/>
+                                                <not>
+                                                    <equals arg1="${otilm.hook.installed}" arg2="${otilm.hook.live}"/>
+                                                </not>
+                                            </and>
+                                        </condition>
+                                        <copy if:set="otilm.hook.mirror" file="${otilm.hook.installed}"
+                                              tofile="${otilm.hook.live}" overwrite="true"/>
+                                        <chmod if:set="otilm.hook.mirror" file="${otilm.hook.live}" perm="755"
+                                               osfamily="unix"/>
+                                        <echo if:set="otilm.hook.mirror" level="info"
+                                              message="linked worktree detected: mirrored the pre-commit hook to ${otilm.hook.live}"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- Hook source, case 1: a child repo, which has no scripts/ of its own. The install
+             goal searches the filesystem and then the PLUGIN classpath, so shipping
+             pre-commit.sh inside build-tools gives every child the real hook
+             with no per-repo file to copy and keep in sync. -->
+        <profile>
+            <id>hooks-from-build-tools-jar</id>
+            <activation>
+                <file>
+                    <missing>.otilm-aggregator</missing>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.rudikershaw.gitbuildhook</groupId>
+                        <artifactId>git-build-hook-maven-plugin</artifactId>
+                        <configuration>
+                            <installHooks>
+                                <pre-commit>scripts/pre-commit.sh</pre-commit>
+                            </installHooks>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.otilm</groupId>
+                                <artifactId>build-tools</artifactId>
+                                <version>${build-tools.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- Hook source, case 2: this repo. Point straight at the working-tree file. -->
+        <profile>
+            <id>hooks-from-source-tree</id>
+            <activation>
+                <file>
+                    <exists>.otilm-aggregator</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.rudikershaw.gitbuildhook</groupId>
+                        <artifactId>git-build-hook-maven-plugin</artifactId>
+                        <configuration>
+                            <installHooks>
+                                <pre-commit>${project.basedir}/scripts/pre-commit.sh</pre-commit>
+                            </installHooks>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- Wire local `git blame` to skip the one-shot formatting commit. -->
+        <profile>
+            <id>blame-ignore-revs</id>
+            <activation>
+                <file>
+                    <exists>.git-blame-ignore-revs</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.rudikershaw.gitbuildhook</groupId>
+                        <artifactId>git-build-hook-maven-plugin</artifactId>
+                        <configuration>
+                            <gitConfig>
+                                <blame.ignoreRevsFile>.git-blame-ignore-revs</blame.ignoreRevsFile>
+                            </gitConfig>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>configure-git-blame</id>
+                                <goals>
+                                    <goal>configure</goal>
+                                </goals>
+                                <phase>initialize</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- Skip BOTH format gates when building the dependencies aggregator itself. -->
+        <profile>
+            <id>skip-format-gates-on-aggregator</id>
+            <activation>
+                <file>
+                    <exists>.otilm-aggregator</exists>
+                </file>
+            </activation>
+            <properties>
+                <spotless.skip>true</spotless.skip>
+                <checkstyle.skip>true</checkstyle.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- Unbind (not merely skip) the check execution. -->
+                    <plugin>
+                        <groupId>com.diffplug.spotless</groupId>
+                        <artifactId>spotless-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>spotless-check</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Same bootstrap-cycle fix for Checkstyle (also a build-tools consumer). -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>checkstyle-lint</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>central</id>
             <distributionManagement>
@@ -313,8 +619,9 @@
                         <configuration>
                             <publishingServerId>central</publishingServerId>
                             <deploymentName>${project.artifactId}-${project.version}</deploymentName>
-                            <!-- autoPublish defaults to false: deployment waits in
-                                 VALIDATED state for you to click Publish in the Portal UI. -->
+                            <excludeArtifacts>
+                                <excludeArtifact>formatter-selftest</excludeArtifact>
+                            </excludeArtifacts>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -363,7 +670,27 @@
         <repository>
             <id>central-snapshots</id>
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
+
+    <!-- Spotless and Checkstyle read their rules off build-tools, which sits on their PLUGIN classpath. -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>
