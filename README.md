@@ -66,7 +66,7 @@ Confirm it with `git ls-files --eol -- "*.java"`: an `i/lf` index entry against 
 | Fix | Scope | Cost |
 |-----|-------|------|
 | Delete the worktree and clone again | Every file | Loses uncommitted work, stashes and local branches |
-| `git rm --cached -r . && git reset --hard` | Every file | **Discards uncommitted changes** — commit or stash first |
+| `git rm --cached -r .` then `git reset --hard` | Every file | **Discards uncommitted changes** — commit or stash first |
 | `mvn spotless:apply` | `src/{main,test}/java` only | Leaves other text files on CRLF |
 
 The middle one is the usual choice. Run it once per worktree.

@@ -104,8 +104,8 @@ files a commit changed, so `.gitattributes` lands while the untouched files keep
 Spotless rejects them — with `git status` reporting a clean tree throughout. Affects any worktree
 already holding CRLF files, including persistent Windows CI workspaces; only fresh clones and
 ephemeral CI are exempt. Diagnose with `git ls-files --eol -- "*.java"` (`i/lf` vs `w/crlf`). Fix
-per worktree: re-clone, or `git rm --cached -r . && git reset --hard` (discards uncommitted
-changes), or `mvn spotless:apply` (covers `src/{main,test}/java` only).
+per worktree: re-clone, or `git rm --cached -r .` followed by `git reset --hard` (discards
+uncommitted changes), or `mvn spotless:apply` (covers `src/{main,test}/java` only).
 
 ## Dependency Updates
 
