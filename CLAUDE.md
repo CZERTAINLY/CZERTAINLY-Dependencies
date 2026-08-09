@@ -88,24 +88,8 @@ Escape hatches, in order of bluntness: `-Dspotless.skip=true`, `-Dcheckstyle.ski
 
 ### Rolling the gates out to a child repo
 
-Order matters — bumping the parent first leaves the repo red until the reformat lands:
-
-1. `mvn spotless:apply`, then hand-fix what Checkstyle reports.
-2. Commit that as a single mechanical reformat commit, touching nothing else.
-3. Record its SHA in a `.git-blame-ignore-revs` at the repo root; the `blame-ignore-revs`
-   profile then wires local `git blame` to skip it automatically (GitHub's web UI does this on
-   its own).
-4. Copy in `.editorconfig` and `.gitattributes`. The parent POM cannot deliver these — they must
-   exist in the repo before the IDE or checkout honours them.
-5. Only then bump `<parent>` to the version carrying the gates.
-
-**Existing Windows worktrees need a one-time line-ending refresh.** Checkout rewrites only the
-files a commit changed, so `.gitattributes` lands while the untouched files keep CRLF and
-Spotless rejects them — with `git status` reporting a clean tree throughout. Affects any worktree
-already holding CRLF files, including persistent Windows CI workspaces; only fresh clones and
-ephemeral CI are exempt. Diagnose with `git ls-files --eol -- "*.java"` (`i/lf` vs `w/crlf`). Fix
-per worktree: re-clone, or `git rm --cached -r .` followed by `git reset --hard` (discards
-uncommitted changes), or `mvn spotless:apply` (covers `src/{main,test}/java` only).
+The procedure is in `README.md` under "Rolling it out to an existing repo" — follow it there, in
+order, including the Windows line-ending note that follows it.
 
 ## Dependency Updates
 

@@ -45,13 +45,14 @@ Linked worktrees work: Maven mirrors the hook into the shared hooks directory th
 
 **Do the reformat first and the version bump last.** In the other order your build is red in between.
 
-1. Bump the parent locally, without committing it.
-2. Run `mvn spotless:apply`.
-3. Run `mvn verify` and hand-fix what Checkstyle reports. Wildcard imports are the common one.
-4. Commit the result as a single mechanical reformat commit. Change nothing else in it.
-5. Create a `.git-blame-ignore-revs` at the repo root containing that commit's SHA. `git blame` then skips it, locally and in the GitHub UI.
-6. Copy `.editorconfig` and `.gitattributes` from this repo. The parent POM cannot deliver these — your IDE only honours files that exist in your own repo.
-7. Commit the parent bump.
+1. Copy `.editorconfig` and `.gitattributes` from this repo into the working tree. The parent POM cannot deliver these — your IDE and your checkout only honour files that exist in your own repo. If the project is already open, reload it — a newly added `.editorconfig` is not picked up automatically.
+2. Bump the parent locally, without committing it.
+3. Run `mvn spotless:apply`.
+4. Run `mvn verify` and hand-fix what Checkstyle reports. Wildcard imports are the common one.
+5. Commit the reformat as a single mechanical commit. Change nothing else in it — leave the two files from step 1 and the parent bump uncommitted for now, so this commit can be blame-ignored wholesale.
+6. Create a `.git-blame-ignore-revs` at the repo root containing that commit's SHA, and commit it. `git blame` then skips the reformat, locally and in the GitHub UI.
+7. Commit `.editorconfig` and `.gitattributes`.
+8. Commit the parent bump. This is what actually turns the gates on, so it goes last.
 
 ### Existing Windows worktrees need a one-time refresh
 
@@ -63,11 +64,11 @@ This hits any existing worktree that already contains CRLF files — commonly on
 
 Confirm it with `git ls-files --eol -- "*.java"`: an `i/lf` index entry against a `w/crlf` worktree entry is exactly the mismatch `git status` will not show you. Any one of these fixes it:
 
-| Fix | Scope | Cost |
-|-----|-------|------|
-| Delete the worktree and clone again | Every file | Loses uncommitted work, stashes and local branches |
-| `git rm --cached -r .` then `git reset --hard` | Every file | **Discards uncommitted changes** — commit or stash first |
-| `mvn spotless:apply` | `src/{main,test}/java` only | Leaves other text files on CRLF |
+| Fix                                            | Scope                       | Cost                                                     |
+|------------------------------------------------|-----------------------------|----------------------------------------------------------|
+| Delete the worktree and clone again            | Every file                  | Loses uncommitted work, stashes and local branches       |
+| `git rm --cached -r .` then `git reset --hard` | Every file                  | **Discards uncommitted changes** — commit or stash first |
+| `mvn spotless:apply`                           | `src/{main,test}/java` only | Leaves other text files on CRLF                          |
 
 The middle one is the usual choice. Run it once per worktree.
 
