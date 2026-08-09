@@ -97,7 +97,7 @@ IDE config has to precede any hand-fixing:
 2. `mvn spotless:apply`, then hand-fix what Checkstyle reports.
 3. Commit that as a single mechanical reformat commit, touching nothing else — the two files from
    step 1 stay uncommitted for now, so this commit can be blame-ignored wholesale.
-4. Record its SHA in a `.git-blame-ignore-revs` at the repo root; the `blame-ignore-revs`
+4. Record its SHA in a `.git-blame-ignore-revs` at the repo root and commit it; the `blame-ignore-revs`
    profile then wires local `git blame` to skip it automatically (GitHub's web UI does this on
    its own).
 5. Commit `.editorconfig` and `.gitattributes`.
