@@ -28,9 +28,12 @@
       3. Diff the result against HEAD.
 
     A passing check means no changes, except the known continuation-indent residual.
-    That residual shows up in roughly a fifth of real files. It is confined to nested constructs:
-    annotation arrays, lambdas, deeply nested call arguments, record headers. Those are where the
-    two engines' wrap algorithms fundamentally differ, so it cannot be closed from the IntelliJ
+    That residual shows up in roughly an eighth of real files (155 of interfaces' 1301 at the time
+    alignment_for_enum_constants landed, down from 216 before it — packed enum constants were a
+    drift site of their own, because Eclipse's staircase is a shape IntelliJ never reproduces).
+    It is confined to nested constructs: annotation arrays, lambdas, deeply nested call arguments,
+    record headers, and single-line Javadoc, which IntelliJ expands to three lines. Those are where
+    the two engines' wrap algorithms fundamentally differ, so it cannot be closed from the IntelliJ
     side. The pre-commit hook normalizes it before commit, which is why it never reaches CI.
 
     Anything beyond that residual is drift. Hand-tune the ij_* properties, then repeat from step 1.
@@ -129,6 +132,18 @@
          (M_ONE_PER_LINE_SPLIT, no force bit). Short chains that already fit stay on one line.
          Byte-identical to IntelliJ METHOD_CALL_CHAIN_WRAP=5 ("chop down if long"). -->
     <setting id="org.eclipse.jdt.core.formatter.alignment_for_selector_in_method_invocation" value="48"/>
+
+    <!-- Enum constants: always one per line (M_ONE_PER_LINE_SPLIT | M_FORCE). Without this the JDT default
+         (M_COMPACT_SPLIT) packs as many constants onto a line as fit and indents each continuation under the
+         previous constant's arguments, so a wide enum staircases off the right margin and every added constant
+         reflows the whole block. The force bit is what keeps a short enum one-per-line too; value 48 alone would
+         rejoin constants that happen to fit. Mirrors ij_java_enum_constants_wrap=split_into_lines, which is
+         IntelliJ's "wrap always" (=2); on_every_item is "chop down if long" (=5) and mirrors 48, not 49.
+
+         The terminating semicolon of a constant list ending in a dangling comma still collapses onto the last
+         constant as ",;". JDT has no setting for it (there is no insert_new_line_before_semicolon_in_enum);
+         drop the dangling comma at source instead. -->
+    <setting id="org.eclipse.jdt.core.formatter.alignment_for_enum_constants" value="49"/>
 
     <!-- Common spacing -->
     <setting id="org.eclipse.jdt.core.formatter.insert_space_after_comma_in_method_invocation_arguments" value="insert"/>

@@ -17,7 +17,9 @@ public class Members {
     /** Nested enum: exercises constant layout and the blank line after a class header. */
     public enum State {
 
-        PENDING, ACTIVE, CLOSED;
+        PENDING,
+        ACTIVE,
+        CLOSED;
 
         boolean terminal() {
             return this == CLOSED;
