@@ -21,16 +21,13 @@
          misspelled ij_* property is silently ignored, so a typo fails open.
 
     Residuals are confined to nested constructs — annotation arrays, lambdas, deeply nested call arguments,
-    record headers — where the two wrap algorithms genuinely differ, so it cannot be closed from the IntelliJ
-    side. The pre-commit hook normalizes it, so it never reaches CI.
+    record headers — where the two wrap algorithms genuinely differ, so they cannot be closed from the
+    IntelliJ side. The pre-commit hook normalizes them, so they never reach CI.
 
-    Anything beyond that residual is drift. Hand-tune the ij_* properties, then repeat from step 1.
-
-    Single-line Javadoc is NOT part of that residual, though the figure above still counts it: IntelliJ
-    expands /** ... */ to three lines by default, and ij_java_doc_do_not_wrap_if_one_line closes that in
-    the IDE. format.sh ignores every ij_java_doc_* property, so it cannot validate any doc_* setting — check
-    those by hand with Ctrl+Alt+L. Eclipse preserves either form, so both are Spotless-clean and the hook
-    does not normalize this one.
+    Single-line Javadoc is NOT part of that residual: IntelliJ expands /** ... */ to three lines by default,
+    and ij_java_doc_do_not_wrap_if_one_line closes that in the IDE. format.sh ignores every ij_java_doc_*
+    property, so it cannot validate any doc_* setting — check those by hand with Ctrl+Alt+L. Eclipse
+    preserves either form, so both are Spotless-clean and the hook does not normalize this one.
   -->
   <profile kind="CodeFormatterProfile" name="OmniTrust" version="23">
     <setting id="org.eclipse.jdt.core.compiler.source" value="21"/>
