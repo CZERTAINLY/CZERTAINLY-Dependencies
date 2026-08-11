@@ -34,6 +34,8 @@
            tabulation.size id misspelled ........................ not caught (default is also 4)
            lineSplit removed entirely ........................... not caught (default is also 120)
            number_of_empty_lines_to_preserve 1 -> 3 ............. not caught
+           alignment_for_enum_constants 49 -> 48 ................ caught (Enums.Signal, Members.State)
+           alignment_for_enum_constants removed entirely ........ caught (Enums.Category)
          The two "default is also" rows are not gaps: an ignored setting whose engine default equals
          our value changes nothing today, and the check starts failing the moment an Eclipse JDT bump
          moves that default — which is exactly when it begins to matter.
