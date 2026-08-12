@@ -37,7 +37,7 @@ public final class Wrapping {
     /**
      * A fluent chain in the narrow window that only alignment_for_assignment can break: it overflows the margin by less
      * than the 8 columns that wrapping after the '=' would buy. Setting alignment_for_assignment therefore frees just
-     * enough width for the whole chain to fit. Do not shorten this field's name or its chain.
+     * enough width for the whole chain to fit. Do not shorten the {@code result} local or its chain.
      */
     public static List<String> chainInTheAssignmentWindow(List<String> values) {
         List<String> result = values

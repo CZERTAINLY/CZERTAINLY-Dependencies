@@ -42,7 +42,11 @@ public final class Annotations {
     public static void singleElement() {
     }
 
-    /** Empty member array, which keep_empty_array_initializer_on_one_line holds together. */
+    /**
+     * Empty member array, held together by keep_empty_array_initializer_on_one_line. That setting is not in the profile
+     * and so is not mutation-tested: this fixture pins the Eclipse default, and will start failing if a JDT bump ever
+     * moves it.
+     */
     @Responses({})
     public static void noElements() {
     }

@@ -28,21 +28,21 @@
          profile still produces exactly them, so a change that alters formatting fails HERE, before
          it can be published. Mutation-tested; the results define what this module does and does not
          cover:
-           tabulation.char space -> tab ......................... caught
-           lineSplit 120 -> 100 ................................. caught
-           tabulation.char id misspelled ........................ caught (default is tab)
-           tabulation.size id misspelled ........................ not caught (default is also 4)
-           lineSplit removed entirely ........................... not caught (default is also 120)
-           number_of_empty_lines_to_preserve 1 -> 3 ............. not caught
-           alignment_for_enum_constants 49 -> 48 ................ caught (Enums.Signal, Members.State)
-           alignment_for_enum_constants removed entirely ........ caught (Enums.Category)
-           alignment_for_expr_in_array_initializer 48 -> 49 ..... caught (Annotations ONLY)
-           alignment_for_expr_in_array_initializer 48 -> 16 ..... caught (Annotations, Wrapping.names)
-           alignment_for_expr_in_array_initializer removed ...... caught (Annotations, Wrapping.names)
-           insert_new_line_before_closing_brace_in_array added .. caught (Annotations, Wrapping.names)
-           alignment_for_arguments_in_annotation removed ........ caught (Annotations ONLY)
-           alignment_for_arguments_in_annotation 16 -> 32 ....... caught (Annotations ONLY)
-           alignment_for_assignment added ....................... caught (Wrapping.chainInTheAssignmentWindow ONLY)
+           tabulation.char space -> tab ..................................... caught
+           lineSplit 120 -> 100 ............................................. caught
+           tabulation.char id misspelled .................................... caught (default is tab)
+           tabulation.size id misspelled .................................... not caught (default is also 4)
+           lineSplit removed entirely ....................................... not caught (default is also 120)
+           number_of_empty_lines_to_preserve 1 -> 3 ......................... not caught
+           alignment_for_enum_constants 49 -> 48 ............................ caught (Enums.Signal, Members.State)
+           alignment_for_enum_constants removed entirely .................... caught (Enums.Category)
+           alignment_for_expressions_in_array_initializer 48 -> 49 .......... caught (Annotations ONLY)
+           alignment_for_expressions_in_array_initializer 48 -> 16 .......... caught (Annotations, Wrapping.names)
+           alignment_for_expressions_in_array_initializer removed ........... caught (Annotations, Wrapping.names)
+           insert_new_line_before_closing_brace_in_array_initializer added .. caught (Annotations, Wrapping.names)
+           alignment_for_arguments_in_annotation removed .................... caught (Annotations ONLY)
+           alignment_for_arguments_in_annotation 16 -> 32 ................... caught (Annotations ONLY)
+           alignment_for_assignment added ................................... caught (Wrapping.chainInTheAssignmentWindow ONLY)
          The two "default is also" rows are not gaps: an ignored setting whose engine default equals
          our value changes nothing today, and the check starts failing the moment an Eclipse JDT bump
          moves that default — which is exactly when it begins to matter.
