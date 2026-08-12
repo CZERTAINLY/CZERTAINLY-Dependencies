@@ -65,7 +65,7 @@
         <jackson-bom.version>2.22.1</jackson-bom.version>
         <!-- Override Spring Boot's managed postgresql 42.7.11 (CVE-2026-54291); no Spring Boot
              release incl. 4.x ships 42.7.12 yet. Drop once the parent manages >= 42.7.12. -->
-        <postgresql.version>42.7.12</postgresql.version>
+        <postgresql.version>42.7.13</postgresql.version>
         <!-- Override Spring Boot's managed netty 4.1.135.Final: CVE-2026-59901
              (netty-codec Bzip2 infinite loop), CVE-2026-55831 / CVE-2026-55833 /
              CVE-2026-56745 (netty-codec-http). No Spring Boot release ships
