@@ -28,7 +28,7 @@
          profile still produces exactly them, so a change that alters formatting fails HERE, before
          it can be published. Mutation-tested; the results define what this module does and does not
          cover:
-           tabulation.char space -> tab .......................... caught
+           tabulation.char space -> tab ......................... caught
            lineSplit 120 -> 100 ................................. caught
            tabulation.char id misspelled ........................ caught (default is tab)
            tabulation.size id misspelled ........................ not caught (default is also 4)
@@ -42,29 +42,10 @@
            insert_new_line_before_closing_brace_in_array added .. caught (Annotations, Wrapping.names)
            alignment_for_arguments_in_annotation removed ........ caught (Annotations ONLY)
            alignment_for_arguments_in_annotation 16 -> 32 ....... caught (Annotations ONLY)
-           alignment_for_assignment added ...................... caught (Wrapping.chainInTheAssignmentWindow ONLY)
+           alignment_for_assignment added ....................... caught (Wrapping.chainInTheAssignmentWindow ONLY)
          The two "default is also" rows are not gaps: an ignored setting whose engine default equals
          our value changes nothing today, and the check starts failing the moment an Eclipse JDT bump
          moves that default — which is exactly when it begins to matter.
-         The "Annotations ONLY" row is why that fixture exists. Adding the force bit to the array
-         alignment leaves every over-margin construct in Wrapping unchanged and only rewrites arrays
-         that already fit — short byte[] literals in tests, and short annotation member arrays. No
-         over-margin fixture can see it, so without Annotations that regression ships silently.
-         The two wrapping settings at the bottom of the table guard against a specific failure mode:
-         at their JDT default of 0 the formatter emits over-margin lines rather than wrapping, which
-         IntelliJ then rewrites on its own — so the drift appears in the IDE, never in CI, and no
-         amount of checking the build catches it. Each is pinned by exactly one fixture; keep the
-         over-margin annotation in Annotations and the sized chain in Wrapping intact.
-         The "assignment added" row is the inverse: that setting is one we must NOT adopt, because
-         wrapping after the '=' frees enough width to un-chop a fluent chain. Only a chain that
-         overflows by less than that gained width can see it — describe()'s longer chain stays chopped
-         either way and reports nothing. chainInTheAssignmentWindow is sized to sit in exactly that
-         window, so renaming its variable or editing its chain silently disarms the guard.
-         The number_of_empty_lines_to_preserve row IS a real limit. A setting that only governs how
-         NON-canonical input is normalised (collapsing blank runs, rewrapping over-long lines) cannot
-         be exercised by a fixture that is already canonical. Covering those needs a second,
-         deliberately misformatted fixture set plus an expected-output comparison, which this module
-         does not have.
          The module depends on nothing and has no unit tests: the gate is the assertion. Ordered
          after build-tools in the parent's <modules> so Spotless resolves the rules from the reactor
          rather than from a repository. -->
