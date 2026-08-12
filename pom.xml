@@ -71,7 +71,7 @@
              CVE-2026-56745 (netty-codec-http). No Spring Boot release ships
              >= 4.1.136.Final yet. Drop once the parent manages >= 4.1.136.Final.
              The netty-bom import below keeps Renovate tracking it. -->
-        <netty.version>4.1.136.Final</netty.version>
+        <netty.version>4.2.17.Final</netty.version>
         <wiremock.version>3.13.2</wiremock.version>
         <!-- Spring Boot's property is log4j2.version, not log4j.version; the latter matched
              nothing and left consumers on Spring Boot's managed 2.24.3. Drop once Spring Boot
