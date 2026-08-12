@@ -20,8 +20,35 @@ public final class Wrapping {
             .of("alpha", List.of("one", "two", "three"), "beta", List.of("four", "five", "six"), "gamma",
                     List.of("seven", "eight", "nine"));
 
-    private final String[] names = {"first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth",
-            "ninth"};
+    private final String[] names = {
+            "first",
+            "second",
+            "third",
+            "fourth",
+            "fifth",
+            "sixth",
+            "seventh",
+            "eighth",
+            "ninth",
+            "tenth",
+            "eleventh",
+            "twelfth"};
+
+    /**
+     * A fluent chain in the narrow window that only alignment_for_assignment can break: it overflows the margin by less
+     * than the 8 columns that wrapping after the '=' would buy. Setting alignment_for_assignment therefore frees just
+     * enough width for the whole chain to fit. Do not shorten this field's name or its chain.
+     */
+    public static List<String> chainInTheAssignmentWindow(List<String> values) {
+        List<String> result = values
+                .stream()
+                .map(String::strip)
+                .filter(value -> !value.isEmpty())
+                .sorted()
+                .distinct()
+                .toList();
+        return result;
+    }
 
     private Wrapping() {
         throw new AssertionError("no instances");

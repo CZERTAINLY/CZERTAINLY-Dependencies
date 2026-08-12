@@ -67,6 +67,22 @@
     <setting id="org.eclipse.jdt.core.formatter.brace_position_for_lambda_body" value="end_of_line"/>
     <setting id="org.eclipse.jdt.core.formatter.brace_position_for_annotation_type_declaration" value="end_of_line"/>
 
+    <!-- Array initializers, including annotation member values: Eclipse has exactly one alignment option for both,
+         so any rule chosen here applies equally to @ApiResponses({...}) and to new byte[]{1, 2, 3}.
+
+         48 is "one element per line" WITHOUT the force bit. A long annotation array is chopped one element per line;
+         a short byte[] or int[] literal is left alone. 49 was rejected precisely because the force bit cannot tell
+         those two apart and explodes every array literal in the test sources.
+
+         The two insert_new_line_*_brace_in_array_initializer settings are deliberately NOT set as they are
+         unconditional.
+
+         IntelliJ parity: partial, and asymmetric by design. There is no IDE setting that reproduces 48. The mirror
+         therefore stays at the default ij_java_array_initializer_wrap = normal, which yields: IntelliJ does not CREATE
+         the chopped shape on freshly typed code, but it does PRESERVE it once Spotless has applied it. Do not "fix"
+         this by adding the two ij_* brace properties. -->
+    <setting id="org.eclipse.jdt.core.formatter.alignment_for_expressions_in_array_initializer" value="48"/>
+
     <!-- Blank lines -->
     <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_package" value="0"/>
     <setting id="org.eclipse.jdt.core.formatter.blank_lines_after_package" value="1"/>
@@ -119,6 +135,15 @@
          (= 48 above). A dangling comma before the final ";" collapses to ",;" — no JDT setting; drop it at
          source. -->
     <setting id="org.eclipse.jdt.core.formatter.alignment_for_enum_constants" value="49"/>
+
+    <!-- Annotation arguments. 16 is "wrap only where necessary", the mildest value that lets JDT break at all.
+         It moves the argument onto its own continuation line, the line comes in under 120, and IntelliJ then has nothing
+         to rescue and leaves it alone.
+
+         The drift that remains is a literal-length problem, not a wrapping one: where a single string literal
+         is itself wider than the margin, JDT correctly declines to break (it would not help) while IntelliJ
+         breaks anyway. Only shortening the literal at source closes those. -->
+    <setting id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_annotation" value="16"/>
 
     <!-- Common spacing -->
     <setting id="org.eclipse.jdt.core.formatter.insert_space_after_comma_in_method_invocation_arguments" value="insert"/>
