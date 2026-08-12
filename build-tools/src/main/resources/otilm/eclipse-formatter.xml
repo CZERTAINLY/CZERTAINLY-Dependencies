@@ -71,8 +71,8 @@
          so any rule chosen here applies equally to @ApiResponses({...}) and to new byte[]{1, 2, 3}.
 
          48 is "one element per line" WITHOUT the force bit. A long annotation array is chopped one element per line;
-         a short byte[] or int[] literal is left alone. 49 was rejected precisely because the force bit cannot tell
-         those two apart and explodes every array literal in the test sources.
+         a short byte[] or int[] literal is left alone. The force bit cannot distinguish those two cases, so 49
+         explodes every array literal in the test sources.
 
          The two insert_new_line_*_brace_in_array_initializer settings are deliberately NOT set as they are
          unconditional.
