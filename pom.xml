@@ -60,7 +60,7 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>ilm</sonar.organization>
         <sonar.projectKey>ilm_dependencies</sonar.projectKey>
-        <!-- Jackson 2 ahead of Boot's 2.21.x for GHSA-r7wm-3cxj-wff9; jackson-bom.version drives Jackson 3. -->
+        <!-- Jackson 2 (jackson-bom.version is Jackson 3); >= 2.22.1 for GHSA-r7wm-3cxj-wff9, drop once Boot manages that. -->
         <jackson-2-bom.version>2.22.1</jackson-2-bom.version>
         <!-- Override Spring Boot's managed postgresql 42.7.11 (CVE-2026-54291); no Spring Boot
              release incl. 4.x ships 42.7.12 yet. Drop once the parent manages >= 42.7.12. -->
@@ -68,7 +68,7 @@
         <!-- Not managed by the Boot 4 BOM. -->
         <spring-retry.version>2.0.13</spring-retry.version>
         <wiremock.version>3.13.2</wiremock.version>
-        <!-- Ahead of Boot's managed 2.25.4; the Boot property is log4j2.version, not log4j.version. -->
+        <!-- Boot's property is log4j2.version; drop this override once Boot manages >= 2.26.1. -->
         <log4j2.version>2.26.1</log4j2.version>
         <kxml2.version>2.3.0</kxml2.version>
         <jaxws-rt.version>4.0.5</jaxws-rt.version>
@@ -266,13 +266,14 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!-- The 7.x enhance goal dropped failOnError and enableLazyInitialization. -->
+                <!-- failOnError is gone in 7.x, and enableLazyInitialization is deprecated and already defaults to true. -->
                 <plugin>
                     <groupId>org.hibernate.orm</groupId>
                     <artifactId>hibernate-maven-plugin</artifactId>
                     <version>${hibernate-maven-plugin.version}</version>
                     <executions>
                         <execution>
+                            <phase>compile</phase>
                             <goals>
                                 <goal>enhance</goal>
                             </goals>
