@@ -7,13 +7,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.16</version>
+        <version>4.1.0</version>
     </parent>
 
     <groupId>com.otilm</groupId>
     <artifactId>dependencies</artifactId>
     <!-- keep in sync with build-tools.version below; the build asserts it -->
-    <version>1.4.3-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
 
     <name>dependencies</name>
     <packaging>pom</packaging>
@@ -52,31 +52,23 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Explicit because the Boot parent's release (17) otherwise overrides source/target. -->
+        <maven.compiler.release>21</maven.compiler.release>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.jacoco.plugin.version>0.8.15</maven.jacoco.plugin.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>ilm</sonar.organization>
         <sonar.projectKey>ilm_dependencies</sonar.projectKey>
-        <!-- Jackson train pinned one minor ahead of Spring Boot's managed 2.21.x: consumers
-             are already validated on 2.22.x, so we stay rather than re-test a downgrade.
-             Must remain >= 2.22.1 (GHSA-r7wm-3cxj-wff9). Drop once Spring Boot manages
-             Jackson >= 2.22.1. The jackson-bom import below keeps Renovate tracking it. -->
-        <jackson-bom.version>2.22.1</jackson-bom.version>
+        <!-- Jackson 2 ahead of Boot's 2.21.x for GHSA-r7wm-3cxj-wff9; jackson-bom.version drives Jackson 3. -->
+        <jackson-2-bom.version>2.22.1</jackson-2-bom.version>
         <!-- Override Spring Boot's managed postgresql 42.7.11 (CVE-2026-54291); no Spring Boot
              release incl. 4.x ships 42.7.12 yet. Drop once the parent manages >= 42.7.12. -->
         <postgresql.version>42.7.12</postgresql.version>
-        <!-- Override Spring Boot's managed netty 4.1.135.Final: CVE-2026-59901
-             (netty-codec Bzip2 infinite loop), CVE-2026-55831 / CVE-2026-55833 /
-             CVE-2026-56745 (netty-codec-http). No Spring Boot release ships
-             >= 4.1.136.Final yet. Drop once the parent manages >= 4.1.136.Final.
-             The netty-bom import below keeps Renovate tracking it. -->
-        <netty.version>4.1.136.Final</netty.version>
+        <!-- Not managed by the Boot 4 BOM. -->
+        <spring-retry.version>2.0.13</spring-retry.version>
         <wiremock.version>3.13.2</wiremock.version>
-        <!-- Spring Boot's property is log4j2.version, not log4j.version; the latter matched
-             nothing and left consumers on Spring Boot's managed 2.24.3. Drop once Spring Boot
-             manages log4j2 >= 2.26.1. The log4j-bom import below applies the version and keeps
-             Renovate tracking it. -->
+        <!-- Ahead of Boot's managed 2.25.4; the Boot property is log4j2.version, not log4j.version. -->
         <log4j2.version>2.26.1</log4j2.version>
         <kxml2.version>2.3.0</kxml2.version>
         <jaxws-rt.version>4.0.5</jaxws-rt.version>
@@ -84,8 +76,8 @@
         <commons.configuration>2.15.1</commons.configuration>
         <swagger.annotation.version>2.2.52</swagger.annotation.version>
         <bouncycastle.version>1.84</bouncycastle.version>
-        <!-- Track Spring Boot's hibernate-core; a plugin/runtime mismatch breaks enhancement. -->
-        <hibernate-enhance-maven-plugin.version>${hibernate.version}</hibernate-enhance-maven-plugin.version>
+        <!-- Must track hibernate-core; a plugin/runtime mismatch breaks enhancement. -->
+        <hibernate-maven-plugin.version>${hibernate.version}</hibernate-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
         <!-- Spotless: both the plugin and the bundled Eclipse JDT formatter are pinned, because
@@ -96,7 +88,7 @@
         <!-- build-tools carries the formatter rules and ships from this reactor, so this must match <version> above.
              It has to be a literal, not ${project.version}: inherited property values are re-interpolated in each consuming
              project, so ${project.version} here would resolve to the child repo's own version. -->
-        <build-tools.version>1.4.3-SNAPSHOT</build-tools.version>
+        <build-tools.version>2.0.0-SNAPSHOT</build-tools.version>
         <!-- Children gate on formatting by default; skip-format-gates-on-aggregator below
              flips both to true to break the build-tools bootstrap cycle. -->
         <spotless.skip>false</spotless.skip>
@@ -109,22 +101,11 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Explicit import so Renovate tracks jackson-bom.version; overrides
-                 Spring Boot's managed Jackson (nearest definition wins). -->
+            <!-- Imported explicitly so Renovate tracks jackson-2-bom.version. -->
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
-                <version>${jackson-bom.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- Explicit import so Renovate tracks netty.version; overrides
-                 Spring Boot's managed netty-bom (nearest definition wins). -->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-bom</artifactId>
-                <version>${netty.version}</version>
+                <version>${jackson-2-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -148,14 +129,9 @@
             </dependency>
 
             <dependency>
-                <groupId>jakarta.xml.bind</groupId>
-                <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>${jakarta-xml-bind.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.xml.ws</groupId>
-                <artifactId>jakarta.xml.ws-api</artifactId>
-                <version>${jakarta-xml-ws.version}</version>
+                <groupId>org.springframework.retry</groupId>
+                <artifactId>spring-retry</artifactId>
+                <version>${spring-retry.version}</version>
             </dependency>
 
             <dependency>
@@ -290,17 +266,13 @@
                         </execution>
                     </executions>
                 </plugin>
+                <!-- The 7.x enhance goal dropped failOnError and enableLazyInitialization. -->
                 <plugin>
-                    <groupId>org.hibernate.orm.tooling</groupId>
-                    <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                    <version>${hibernate-enhance-maven-plugin.version}</version>
+                    <groupId>org.hibernate.orm</groupId>
+                    <artifactId>hibernate-maven-plugin</artifactId>
+                    <version>${hibernate-maven-plugin.version}</version>
                     <executions>
                         <execution>
-                            <phase>compile</phase>
-                            <configuration>
-                                <failOnError>true</failOnError>
-                                <enableLazyInitialization>true</enableLazyInitialization>
-                            </configuration>
                             <goals>
                                 <goal>enhance</goal>
                             </goals>
