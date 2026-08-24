@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
+        <version>4.1.1</version>
     </parent>
 
     <groupId>com.otilm</groupId>
@@ -62,9 +62,6 @@
         <sonar.projectKey>ilm_dependencies</sonar.projectKey>
         <!-- Jackson 2 (jackson-bom.version is Jackson 3); >= 2.22.1 for GHSA-r7wm-3cxj-wff9, drop once Boot manages that. -->
         <jackson-2-bom.version>2.22.1</jackson-2-bom.version>
-        <!-- Override Spring Boot's managed postgresql 42.7.11 (CVE-2026-54291); no Spring Boot
-             release incl. 4.x ships 42.7.12 yet. Drop once the parent manages >= 42.7.12. -->
-        <postgresql.version>42.7.12</postgresql.version>
         <!-- Not managed by the Boot 4 BOM. -->
         <spring-retry.version>2.0.13</spring-retry.version>
         <wiremock.version>3.13.2</wiremock.version>
@@ -121,6 +118,7 @@
             </dependency>
 
             <!-- DB -->
+            <!-- Version comes from the Boot parent; this entry exists only to pin runtime scope. -->
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
