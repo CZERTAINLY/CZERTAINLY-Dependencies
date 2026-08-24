@@ -20,6 +20,37 @@ For more information, see [pom.xml](./pom.xml).
 </parent>
 ```
 
+## Upgrading to 2.0.0
+
+2.0.0 moves the platform to Spring Boot 4.1. It requires the following of every consumer, and one of them fails silently.
+
+### JDK 21 is required
+
+2.0.0 sets `maven.compiler.release=21`, so it emits Java 21 bytecode and needs a JDK 21 toolchain to build. Earlier releases inherited the Boot parent's Java 17 release level regardless of the `source` and `target` set here.
+
+### Move the Hibernate enhance plugin, in the same commit
+
+Hibernate 7 relocated the bytecode enhancement plugin. 2.0.0 manages the new coordinate:
+
+```xml
+<plugin>
+-    <groupId>org.hibernate.orm.tooling</groupId>
+-    <artifactId>hibernate-enhance-maven-plugin</artifactId>
++    <groupId>org.hibernate.orm</groupId>
++    <artifactId>hibernate-maven-plugin</artifactId>
+</plugin>
+```
+
+**Bumping the parent without this change leaves the build green and stops enhancing your entities.** Consumers declare the plugin with no `<version>` and no `<executions>`, taking both from this POM. Once this POM manages a different coordinate, the old declaration matches nothing, inherits no executions, and binds no goal. Maven warns that the version is missing and then resolves it from `maven-metadata.xml`, whose `<latest>` is a dead 2024 `7.0.0.Beta1`.
+
+Confirm the goal still runs — it appears in the executed-goal list of any `mvn compile`:
+
+```
+[INFO] --- hibernate:7.4.5.Final:enhance (default) @ your-module ---
+```
+
+Drop `failOnError` and `enableLazyInitialization` if your POM sets them: the first is gone in 7.x, the second is deprecated and already defaults to true.
+
 ## Java formatting
 
 **Inheriting this parent also turns on two build gates that fail on badly formatted Java, so read this before bumping the version.**
