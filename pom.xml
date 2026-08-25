@@ -61,7 +61,7 @@
         <sonar.organization>ilm</sonar.organization>
         <sonar.projectKey>ilm_dependencies</sonar.projectKey>
         <!-- Jackson 2 (jackson-bom.version is Jackson 3); >= 2.22.1 for GHSA-r7wm-3cxj-wff9, drop once Boot manages that. -->
-        <jackson-2-bom.version>2.22.1</jackson-2-bom.version>
+        <jackson-2-bom.version>2.22.2</jackson-2-bom.version>
         <!-- Not managed by the Boot 4 BOM. -->
         <spring-retry.version>2.0.13</spring-retry.version>
         <wiremock.version>3.13.2</wiremock.version>
