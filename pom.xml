@@ -72,7 +72,7 @@
         <commons.net.version>3.13.0</commons.net.version>
         <commons.configuration>2.15.1</commons.configuration>
         <swagger.annotation.version>2.2.52</swagger.annotation.version>
-        <bouncycastle.version>1.84</bouncycastle.version>
+        <bouncycastle.version>1.85.2</bouncycastle.version>
         <!-- Must track hibernate-core; a plugin/runtime mismatch breaks enhancement. -->
         <hibernate-maven-plugin.version>${hibernate.version}</hibernate-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
