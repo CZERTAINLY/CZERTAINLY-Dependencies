@@ -90,7 +90,7 @@
              flips both to true to break the build-tools bootstrap cycle. -->
         <spotless.skip>false</spotless.skip>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-        <checkstyle.version>13.6.0</checkstyle.version>
+        <checkstyle.version>14.1.0</checkstyle.version>
         <checkstyle.skip>false</checkstyle.skip>
         <!-- git-build-hook auto-installs the pre-commit hook. Bound to initialize, so any `mvn …` installs it. -->
         <git-build-hook-maven-plugin.version>3.6.0</git-build-hook-maven-plugin.version>
