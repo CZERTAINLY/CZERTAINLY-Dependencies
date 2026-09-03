@@ -52,6 +52,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- CVE-2026-65182, CVE-2026-65905, CVE-2026-68525 (auth/constraint bypasses in embedded Tomcat).
+             Remove when the Boot parent manages at least this version. -->
+        <tomcat.version>10.1.58</tomcat.version>
         <!-- Explicit because the Boot parent's release (17) otherwise overrides source/target. -->
         <maven.compiler.release>21</maven.compiler.release>
         <maven.compiler.source>21</maven.compiler.source>
