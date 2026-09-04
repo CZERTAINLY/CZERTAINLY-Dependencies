@@ -80,7 +80,7 @@
         <!-- Spotless: both the plugin and the bundled Eclipse JDT formatter are pinned, because
              .editorconfig is hand-tuned against this exact engine. Bumping either requires re-running the IntelliJ
              round-trip parity check — procedure documented in build-tools/src/main/resources/otilm/eclipse-formatter.xml.  -->
-        <spotless-maven-plugin.version>3.7.0</spotless-maven-plugin.version>
+        <spotless-maven-plugin.version>3.10.2</spotless-maven-plugin.version>
         <spotless.eclipse-jdt.version>4.40</spotless.eclipse-jdt.version>
         <!-- build-tools carries the formatter rules and ships from this reactor, so this must match <version> above.
              It has to be a literal, not ${project.version}: inherited property values are re-interpolated in each consuming
